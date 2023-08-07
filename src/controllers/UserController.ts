@@ -1,13 +1,23 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { ILoginShcema, IRegisterShcema } from "../validation_schemas/user.js";
 import User from "../models/user.js";
-import sgMail from "@sendgrid/mail";
+import { ILoginShcema, IRegisterShcema } from "../validation_schemas/user.js";
+import { IMessage, sendMail } from "../utils/sendMail.js";
+import { getSixDigitCode } from "../utils/getSixDigitCode.js";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { password, ...newUser } = req.body as IRegisterShcema;
+    const { password, verification, ...newUser } = req.body as IRegisterShcema;
+console.log(password);
+
+    const verificationData = <jwt.JwtPayload>jwt.verify(verification.token, verification.code);
+    if (verificationData.email !== newUser.email) {
+      return res.status(401).json({
+        message: "Email not verified",
+      });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
@@ -21,7 +31,7 @@ export const register = async (req: Request, res: Response) => {
       {
         id: user.id,
       },
-      "secret",
+      process.env.JWT_SECRET || "",
       { expiresIn: "30d" },
     );
 
@@ -49,7 +59,7 @@ export const login = async (req: Request, res: Response) => {
       {
         id: user.id,
       },
-      "secret",
+      process.env.JWT_SECRET || "",
       {
         expiresIn: "30d",
       },
@@ -103,18 +113,21 @@ export const verificate = async (req: Request, res: Response) => {
   try {
     const { email } = req.params;
 
-    const msg = {
+    const verificationCode = getSixDigitCode();
+
+    const msg: IMessage = {
       to: email,
-      from: "samvelhvhnnsn@gmail.com",
-      subject: "Verifying",
+      subject: "Verify your email adress",
       text: "Verify your email adress",
-      html: "<strong>gfgjh</strong>",
+      html: `<p>Verification code: <strong>${verificationCode}</strong></p>`,
     };
-    
-    sgMail.setApiKey("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");
-    const data = await sgMail.send(msg);
-    res.json(data);
+
+    await sendMail(msg);
+
+    const token = jwt.sign({ email }, verificationCode, { expiresIn: "5min" });
+
+    res.json({ success: true, token });
   } catch (error) {
-    res.status(400).json(error);
+    res.status(550).json({ success: false });
   }
 };

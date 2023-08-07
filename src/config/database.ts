@@ -1,8 +1,10 @@
 import { Sequelize } from "sequelize";
 
-const sequelize = new Sequelize("amazonDB", "root", "amazon", {
-  host: "127.0.0.1",
-  port: 3306,
+const { DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT } = process.env;
+
+const sequelize = new Sequelize(DB_NAME || "", DB_USERNAME || "", DB_PASSWORD || "", {
+  host: DB_HOST,
+  port: Number(DB_PORT),
   dialect: "mysql",
 });
 

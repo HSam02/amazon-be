@@ -23,7 +23,7 @@ export default (req: Request, _res: Response, next: NextFunction) => {
       throw new Error();
     }
 
-    const { id } = <jwt.JwtPayload>jwt.verify(token, process.env.SECRET_KEY || "secret");
+    const { id } = <jwt.JwtPayload>jwt.verify(token, process.env.JWT_SECRET || "");
     req.user = {
       id,
       role: id === 1 ? Role.Admin : Role.User,
