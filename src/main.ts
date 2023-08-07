@@ -2,10 +2,10 @@ import express from "express";
 import cors from "cors";
 import checkAuth from "./utils/checkAuth.js";
 import sequelize from "./config/database.js";
+import dotenv from "dotenv";
 import { UserController } from "./controllers/index.js";
 import { joiValidation } from "./utils/joiValidation.js";
 import { loginSchema, registerSchema } from "./validation_schemas/user.js";
-import dotenv from "dotenv";
 
 dotenv.config();
 try {
@@ -27,6 +27,6 @@ app.post("/auth/register", joiValidation(registerSchema), UserController.registe
 app.post("/auth/login", joiValidation(loginSchema), UserController.login);
 app.get("/auth/me", UserController.getMe);
 app.get("/auth/check/:email", UserController.checkEmail);
-app.get("/auth/verify/:email", UserController.verificate);
+app.get("/auth/verify/:email", UserController.verify);
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

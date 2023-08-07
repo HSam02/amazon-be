@@ -9,7 +9,6 @@ import { getSixDigitCode } from "../utils/getSixDigitCode.js";
 export const register = async (req: Request, res: Response) => {
   try {
     const { password, verification, ...newUser } = req.body as IRegisterShcema;
-console.log(password);
 
     const verificationData = <jwt.JwtPayload>jwt.verify(verification.token, verification.code);
     if (verificationData.email !== newUser.email) {
@@ -109,7 +108,7 @@ export const checkEmail = async (req: Request, res: Response) => {
   }
 };
 
-export const verificate = async (req: Request, res: Response) => {
+export const verify = async (req: Request, res: Response) => {
   try {
     const { email } = req.params;
 
@@ -126,8 +125,8 @@ export const verificate = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ email }, verificationCode, { expiresIn: "5min" });
 
-    res.json({ success: true, token });
-  } catch (error) {
-    res.status(550).json({ success: false });
+    res.json(token);
+  } catch (error: any) {
+    res.status(550).json({ success: false, message: error.message });
   }
 };
