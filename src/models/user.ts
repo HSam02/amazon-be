@@ -1,14 +1,15 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database.js";
 
-interface UserAttributes {
-  firstName: string;
-  lastName: string;
-  email: string;
-  passwordHash?: string;
-}
+// interface UserAttributes {
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   passwordHash?: string;
+// }
 
-class User extends Model<UserAttributes> implements UserAttributes {
+// class User extends Model<UserAttributes> implements UserAttributes {
+class User extends Model {
   public id!: number;
   public firstName!: string;
   public lastName!: string;
