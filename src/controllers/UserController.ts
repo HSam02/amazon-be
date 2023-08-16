@@ -123,7 +123,7 @@ export const verify = async (req: Request, res: Response) => {
 
     await sendMail(msg);
 
-    const token = jwt.sign({ email }, verificationCode, { expiresIn: "5min" });
+    const token = jwt.sign({ email }, verificationCode, { expiresIn: "5m" });
 
     res.json(token);
   } catch (error: any) {
