@@ -5,6 +5,7 @@ import User from "../models/user.js";
 import { ILoginShcema, IRegisterShcema } from "../validation_schemas/user.js";
 import { IMessage, sendMail } from "../utils/sendMail.js";
 import { getSixDigitCode } from "../utils/getSixDigitCode.js";
+import { Role } from "../utils/checkAuth.js";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -34,7 +35,7 @@ export const register = async (req: Request, res: Response) => {
       { expiresIn: "30d" },
     );
 
-    res.json({ user: newUser, token });
+    res.json({ user: { ...newUser, id: user.id, role: Role.User }, token });
   } catch (error) {
     res.status(415).json(error);
   }
@@ -43,13 +44,12 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body as ILoginShcema;
-    const userData = await User.findOne({ where: { email } });
-    if (!userData) {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
       throw new Error("Wrong email or password");
     }
 
-    const { passwordHash, ...user } = userData;
-    const isPassRight = await bcrypt.compare(password, passwordHash!);
+    const isPassRight = await bcrypt.compare(password, user.passwordHash!);
     if (!isPassRight) {
       throw new Error("Wrong email or password");
     }
@@ -65,7 +65,13 @@ export const login = async (req: Request, res: Response) => {
     );
 
     res.json({
-      user,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.id === 1 ? Role.Admin : Role.User,
+      },
       token,
     });
   } catch (error: any) {
@@ -88,7 +94,10 @@ export const getMe = async (req: Request, res: Response) => {
       throw new Error("User not found");
     }
 
-    res.json(user);
+    res.json({
+      ...user,
+      role: user.id === 1 ? Role.Admin : Role.User,
+    });
   } catch (error: any) {
     res.status(403).json({
       message: error.message,
