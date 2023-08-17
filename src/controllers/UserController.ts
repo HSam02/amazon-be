@@ -95,7 +95,10 @@ export const getMe = async (req: Request, res: Response) => {
     }
 
     res.json({
-      ...user,
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
       role: user.id === 1 ? Role.Admin : Role.User,
     });
   } catch (error: any) {
