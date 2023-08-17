@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
 import checkAuth from "./utils/checkAuth.js";
-import sequelize from "./config/database.js";
+import sequelize from "./config/sequelize.js";
 import dotenv from "dotenv";
-import { UserController } from "./controllers/index.js";
+import { ColorController, UserController } from "./controllers/index.js";
 import { joiValidation } from "./utils/joiValidation.js";
-import { loginSchema, registerSchema } from "./validation_schemas/user.js";
+import { loginSchema, registerSchema } from "./validation_schemas/user.validation.js";
+import checkAdmin from "./utils/checkAdmin.js";
+import { colorSchema } from "./validation_schemas/color.validation.js";
 
 dotenv.config();
 try {
@@ -28,5 +30,8 @@ app.post("/auth/login", joiValidation(loginSchema), UserController.login);
 app.get("/auth/me", UserController.getMe);
 app.get("/auth/check/:email", UserController.checkEmail);
 app.get("/auth/verify/:email", UserController.verify);
+
+app.post("/color", checkAuth, checkAdmin, joiValidation(colorSchema), ColorController.create);
+app.patch("/color/:id", checkAuth, checkAdmin, joiValidation(colorSchema), ColorController.update);
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

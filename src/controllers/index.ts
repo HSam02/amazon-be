@@ -1,1 +1,2 @@
-export * as UserController from "./UserController.js";
+export * as UserController from "./user.controller.js";
+export * as ColorController from "./color.controller.js";

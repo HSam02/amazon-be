@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "../models/user.js";
-import { ILoginShcema, IRegisterShcema } from "../validation_schemas/user.js";
+import User from "../models/user.model.js";
+import { ILoginShcema, IRegisterShcema } from "../validation_schemas/user.validation.js";
 import { IMessage, sendMail } from "../utils/sendMail.js";
 import { getSixDigitCode } from "../utils/getSixDigitCode.js";
 import { Role } from "../utils/checkAuth.js";
@@ -36,8 +36,10 @@ export const register = async (req: Request, res: Response) => {
     );
 
     res.json({ user: { ...newUser, id: user.id, role: Role.User }, token });
-  } catch (error) {
-    res.status(415).json(error);
+  } catch (error: any) {
+    res.status(415).json({
+      message: error.message
+    });
   }
 };
 
