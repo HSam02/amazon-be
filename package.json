@@ -14,7 +14,8 @@
     "build": "rimraf ./build && npx tsc",
     "start": "npm run build && node -r dotenv/config build/main",
     "lint": "npx eslint ./src",
-    "format": "npx eslint ./src --fix"
+    "format": "npx eslint ./src --fix",
+    "migration:run": "npx sequelize-cli db:migrate"
   },
   "keywords": [],
   "author": "",

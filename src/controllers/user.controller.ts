@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "../models/user.model.js";
+import User from "../../models/user.model.js";
 import { ILoginShcema, IRegisterShcema } from "../validation_schemas/user.validation.js";
 import { IMessage, sendMail } from "../utils/sendMail.js";
 import { getSixDigitCode } from "../utils/getSixDigitCode.js";

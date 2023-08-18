@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { IColorSchema } from "../validation_schemas/color.validation.js";
-import Color from "../models/color.model.js";
+import { ISizeSchema } from "../validation_schemas/size.validation.js";
+import Size from "../../models/size.model.js";
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { value } = req.body as IColorSchema;
+    const { value } = req.body as ISizeSchema;
 
-    const color = await Color.create({ value });
+    const color = await Size.create({ value });
     res.json(color);
   } catch (error: any) {
     res.status(415).json({
@@ -17,11 +17,10 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    const { value } = req.body as IColorSchema;
+    const { value } = req.body as ISizeSchema;
     const id = req.params.id;
 
-    const [success] = await Color.update({ value }, { where: { id } });
-
+    const [success] = await Size.update({ value }, { where: { id } });
     res.json({
       success: Boolean(success),
     });
@@ -34,8 +33,8 @@ export const update = async (req: Request, res: Response) => {
 
 export const getAll = async (_req: Request, res: Response) => {
   try {
-    const colors = await Color.findAll();
-    res.json(colors);
+    const sizes = await Size.findAll();
+    res.json(sizes);
   } catch (error: any) {
     res.status(415).json({
       message: error.message,
