@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { IColorSchema } from "../validation_schemas/color.validation.js";
-import Color from "../models/color.model.js";
+import { IColorSchema } from "../utils/validation_schemas/color.validation.js";
+import { Color } from "../database/models/models.js";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -24,6 +24,20 @@ export const update = async (req: Request, res: Response) => {
 
     res.json({
       success: Boolean(success),
+    });
+  } catch (error: any) {
+    res.status(415).json({
+      message: error.message,
+    });
+  }
+};
+
+export const remove = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const count = await Color.destroy({ where: { id } });
+    res.json({
+      success: Boolean(count),
     });
   } catch (error: any) {
     res.status(415).json({

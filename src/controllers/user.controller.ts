@@ -1,17 +1,22 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "../../models/user.model.js";
-import { ILoginShcema, IRegisterShcema } from "../validation_schemas/user.validation.js";
+import {
+  ILoginShcema,
+  IRegisterShcema,
+} from "../utils/validation_schemas/user.validation.js";
 import { IMessage, sendMail } from "../utils/sendMail.js";
 import { getSixDigitCode } from "../utils/getSixDigitCode.js";
 import { Role } from "../utils/checkAuth.js";
+import { User } from "../database/models/models.js";
 
 export const register = async (req: Request, res: Response) => {
   try {
     const { password, verification, ...newUser } = req.body as IRegisterShcema;
 
-    const verificationData = <jwt.JwtPayload>jwt.verify(verification.token, verification.code);
+    const verificationData = <jwt.JwtPayload>(
+      jwt.verify(verification.token, verification.code)
+    );
     if (verificationData.email !== newUser.email) {
       return res.status(401).json({
         message: "Email not verified",
@@ -25,20 +30,19 @@ export const register = async (req: Request, res: Response) => {
       ...newUser,
       passwordHash,
     });
-    delete user["passwordHash"];
 
     const token = jwt.sign(
       {
         id: user.id,
       },
       process.env.JWT_SECRET || "",
-      { expiresIn: "30d" },
+      { expiresIn: "30d" }
     );
 
     res.json({ user: { ...newUser, id: user.id, role: Role.User }, token });
   } catch (error: any) {
     res.status(415).json({
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -63,7 +67,7 @@ export const login = async (req: Request, res: Response) => {
       process.env.JWT_SECRET || "",
       {
         expiresIn: "30d",
-      },
+      }
     );
 
     res.json({
