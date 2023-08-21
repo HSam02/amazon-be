@@ -2,7 +2,7 @@ import { Router } from "express";
 import { ColorController } from "../controllers";
 import checkAdmin from "../utils/checkAdmin";
 import { joiValidation } from "../utils/joiValidation";
-import { colorSchema } from "../utils/validation_schemas/color.validation";
+import { colorSchema } from "../validations/color.validation";
 
 const ColorRouter = Router();
 

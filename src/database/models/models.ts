@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import db from "./";
-import userModelFunction from "./user.js";
-import sizeModelFunction from "./size.js";
-import colorModelFunction from "./color.js";
+import userModelFunction from "./user";
+import sizeModelFunction from "./size";
+import colorModelFunction from "./color";
 import categoryModelFunction from "./category";
 
 export const User = userModelFunction(db.sequelize, DataTypes);

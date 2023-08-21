@@ -14,9 +14,15 @@ module.exports = {
         unique: true,
         type: Sequelize.STRING,
       },
-      subCategories: {
-        defaultValue: [],
-        type: Sequelize.JSON,
+      parentId: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Categories",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
     });
   },

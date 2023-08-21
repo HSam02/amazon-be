@@ -7,6 +7,7 @@ import router from "./router";
 
 const port = Number(process.env.PORT);
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(checkAuth);

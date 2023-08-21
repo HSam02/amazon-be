@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import {
   ILoginShcema,
   IRegisterShcema,
-} from "../utils/validation_schemas/user.validation.js";
+} from "../validations/user.validation.js";
 import { IMessage, sendMail } from "../utils/sendMail.js";
 import { getSixDigitCode } from "../utils/getSixDigitCode.js";
 import { Role } from "../utils/checkAuth.js";

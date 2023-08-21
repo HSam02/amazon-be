@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ISizeSchema } from "../utils/validation_schemas/size.validation.js";
+import { ISizeSchema } from "../validations/size.validation.js";
 import { Size } from "../database/models/models.js";
 
 export const create = async (req: Request, res: Response) => {

@@ -4,7 +4,7 @@ import { UserController } from "../controllers";
 import {
   loginSchema,
   registerSchema,
-} from "../utils/validation_schemas/user.validation";
+} from "../validations/user.validation";
 
 const UserRouter = Router();
 

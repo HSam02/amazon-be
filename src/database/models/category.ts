@@ -2,7 +2,7 @@ import { Model } from "sequelize";
 
 interface ICategoryAttributes {
   title: string;
-  subCategories: string[];
+  parentId?: number;
 }
 
 export default (sequelize: any, DataTypes: any) => {
@@ -12,9 +12,18 @@ export default (sequelize: any, DataTypes: any) => {
   {
     id!: number;
     title!: string;
-    subCategories!: string[];
+    parentId?: number;
     static associate(models: any) {
-      // define association here
+      Category.belongsTo(models.Category, {
+        as: "parent",
+        foreignKey: "parentId",
+        onDelete: "CASCADE",
+      });
+      Category.hasMany(models.Category, {
+        as: "children",
+        foreignKey: "parentId",
+        onDelete: "CASCADE",
+      });
     }
   }
   Category.init(
@@ -30,9 +39,9 @@ export default (sequelize: any, DataTypes: any) => {
         unique: true,
         type: DataTypes.STRING,
       },
-      subCategories: {
-        defaultValue: [],
-        type: DataTypes.JSON,
+      parentId: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
       },
     },
     {

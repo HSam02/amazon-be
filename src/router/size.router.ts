@@ -2,7 +2,7 @@ import { Router } from "express";
 import { SizeController } from "../controllers";
 import checkAdmin from "../utils/checkAdmin";
 import { joiValidation } from "../utils/joiValidation";
-import { sizeSchema } from "../utils/validation_schemas/size.validation";
+import { sizeSchema } from "../validations/size.validation";
 
 const SizeRouter = Router();
 

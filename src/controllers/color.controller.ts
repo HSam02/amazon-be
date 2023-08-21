@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IColorSchema } from "../utils/validation_schemas/color.validation.js";
+import { IColorSchema } from "../validations/color.validation.js";
 import { Color } from "../database/models/models.js";
 
 export const create = async (req: Request, res: Response) => {
