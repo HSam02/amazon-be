@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { IColorSchema } from "../utils/validation_schemas/color.validation.js";
-import { Color } from "../database/models/models.js";
+import { ISizeSchema } from "../utils/validation_schemas/size.validation.js";
+import { Size } from "../database/models/models.js";
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { value } = req.body as IColorSchema;
+    const { value } = req.body as ISizeSchema;
 
-    const color = await Color.create({ value });
-    res.json(color);
+    const size = await Size.create({ value });
+    res.json(size);
   } catch (error: any) {
     res.status(415).json({
       message: error.message,
@@ -17,11 +17,10 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    const { value } = req.body as IColorSchema;
+    const { value } = req.body as ISizeSchema;
     const id = req.params.id;
 
-    const [success] = await Color.update({ value }, { where: { id } });
-
+    const [success] = await Size.update({ value }, { where: { id } });
     res.json({
       success: Boolean(success),
     });
@@ -35,7 +34,7 @@ export const update = async (req: Request, res: Response) => {
 export const remove = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    const count = await Color.destroy({ where: { id } });
+    const count = await Size.destroy({ where: { id } });
     res.json({
       success: Boolean(count),
     });
@@ -48,8 +47,8 @@ export const remove = async (req: Request, res: Response) => {
 
 export const getAll = async (_req: Request, res: Response) => {
   try {
-    const colors = await Color.findAll();
-    res.json(colors);
+    const sizes = await Size.findAll();
+    res.json(sizes);
   } catch (error: any) {
     res.status(415).json({
       message: error.message,
