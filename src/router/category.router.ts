@@ -6,22 +6,27 @@ import {
   categoryUpdateSchema,
 } from "../validations/category.validation";
 import { CategoryController } from "../controllers";
+import { categoryEndpoints } from "../utils/endpoints";
 
 const CategoryRouter = Router();
 
 CategoryRouter.post(
-  "/category",
+  categoryEndpoints.CREATE,
   checkAdmin,
   joiValidation(categoryCreateSchema),
   CategoryController.create
 );
 CategoryRouter.patch(
-  "/category/:id",
+  categoryEndpoints.UPDATE,
   checkAdmin,
   joiValidation(categoryUpdateSchema),
   CategoryController.update
 );
-CategoryRouter.delete("/category/:id", checkAdmin, CategoryController.remove);
-CategoryRouter.get("/category", CategoryController.getAll);
+CategoryRouter.delete(
+  categoryEndpoints.REMOVE,
+  checkAdmin,
+  CategoryController.remove
+);
+CategoryRouter.get(categoryEndpoints.GET_ALL, CategoryController.getAll);
 
 export default CategoryRouter;

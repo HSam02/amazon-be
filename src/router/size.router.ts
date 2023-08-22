@@ -3,22 +3,23 @@ import { SizeController } from "../controllers";
 import checkAdmin from "../utils/checkAdmin";
 import { joiValidation } from "../utils/joiValidation";
 import { sizeSchema } from "../validations/size.validation";
+import { sizeEndpoints } from "../utils/endpoints";
 
 const SizeRouter = Router();
 
-SizeRouter.get("/size", SizeController.getAll);
 SizeRouter.post(
-  "/size",
+  sizeEndpoints.CREATE,
   checkAdmin,
   joiValidation(sizeSchema),
   SizeController.create
 );
 SizeRouter.patch(
-  "/size/:id",
+  sizeEndpoints.UPDATE,
   checkAdmin,
   joiValidation(sizeSchema),
   SizeController.update
 );
-SizeRouter.delete("/size/:id", checkAdmin, SizeController.remove);
+SizeRouter.delete(sizeEndpoints.REMOVE, checkAdmin, SizeController.remove);
+SizeRouter.get(sizeEndpoints.GET_ALL, SizeController.getAll);
 
 export default SizeRouter;

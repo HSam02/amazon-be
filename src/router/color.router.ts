@@ -3,23 +3,23 @@ import { ColorController } from "../controllers";
 import checkAdmin from "../utils/checkAdmin";
 import { joiValidation } from "../utils/joiValidation";
 import { colorSchema } from "../validations/color.validation";
+import { colorEndpoints } from "../utils/endpoints";
 
 const ColorRouter = Router();
 
-ColorRouter.get("/color", ColorController.getAll);
 ColorRouter.post(
-  "/color",
+  colorEndpoints.CREATE,
   checkAdmin,
   joiValidation(colorSchema),
   ColorController.create
 );
 ColorRouter.patch(
-  "/color/:id",
-
+  colorEndpoints.UPDATE,
   checkAdmin,
   joiValidation(colorSchema),
   ColorController.update
 );
-ColorRouter.delete("/color/:id", checkAdmin, ColorController.remove);
+ColorRouter.delete(colorEndpoints.REMOVE, checkAdmin, ColorController.remove);
+ColorRouter.get(colorEndpoints.GET_ALL, ColorController.getAll);
 
 export default ColorRouter;

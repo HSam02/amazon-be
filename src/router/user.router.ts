@@ -1,25 +1,23 @@
 import { Router } from "express";
 import { joiValidation } from "../utils/joiValidation";
 import { UserController } from "../controllers";
-import {
-  loginSchema,
-  registerSchema,
-} from "../validations/user.validation";
+import { loginSchema, registerSchema } from "../validations/user.validation";
+import { authEndpoints } from "../utils/endpoints";
 
 const UserRouter = Router();
 
 UserRouter.post(
-  "/auth/register",
+  authEndpoints.REGISTER,
   joiValidation(registerSchema),
   UserController.register
 );
 UserRouter.post(
-  "/auth/login",
+  authEndpoints.LOGIN,
   joiValidation(loginSchema),
   UserController.login
 );
-UserRouter.get("/auth/me", UserController.getMe);
-UserRouter.get("/auth/check/:email", UserController.checkEmail);
-UserRouter.get("/auth/verify/:email", UserController.verify);
+UserRouter.get(authEndpoints.GET_ME, UserController.getMe);
+UserRouter.get(authEndpoints.CHECK_EMAIL, UserController.checkEmail);
+UserRouter.get(authEndpoints.VERIFY, UserController.verify);
 
 export default UserRouter;
