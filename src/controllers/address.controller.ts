@@ -6,7 +6,10 @@ export const create = async (req: Request, res: Response) => {
   try {
     const { value } = req.body as IAddressSchema;
     const address = await Address.create({ value, userId: req.user!.id });
-    res.json(address);
+    res.json({
+      id: address.id,
+      value: address.value,
+    });
   } catch (error: any) {
     res.status(415).json({
       message: error.message,
@@ -34,7 +37,10 @@ export const update = async (req: Request, res: Response) => {
 
     address.value = value;
     const newAddress = await address.save();
-    res.json(newAddress);
+    res.json({
+      id: newAddress.id,
+      value: newAddress.value,
+    });
   } catch (error: any) {
     res.status(415).json({
       message: error.message,
@@ -76,7 +82,12 @@ export const getAll = async (req: Request, res: Response) => {
     const addresses = await Address.findAll({
       where: { userId: req.user?.id },
     });
-    res.json(addresses);
+    res.json(
+      addresses.map((address) => ({
+        id: address.id,
+        value: address.value,
+      }))
+    );
   } catch (error: any) {
     res.status(415).json({
       message: error.message,
