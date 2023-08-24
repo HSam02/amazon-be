@@ -9,7 +9,7 @@ import {
 import { IMessage, sendMail } from "../utils/sendMail.js";
 import { getSixDigitCode } from "../utils/getSixDigitCode.js";
 import { Role } from "../utils/checkAuth.js";
-import { User } from "../database/models/models.js";
+import { Address, User } from "../database/models/models.js";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -77,6 +77,7 @@ export const login = async (req: Request, res: Response) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        defaultAddressId: user.defaultAddressId,
         role: user.id === 1 ? Role.Admin : Role.User,
       },
       token,
@@ -106,6 +107,7 @@ export const getMe = async (req: Request, res: Response) => {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      defaultAddressId: user.defaultAddressId,
       role: user.id === 1 ? Role.Admin : Role.User,
     });
   } catch (error: any) {
@@ -184,5 +186,29 @@ export const changePassword = async (req: Request, res: Response) => {
     res.status(401).json({
       message: error.message,
     });
+  }
+};
+
+export const setDefaultAddress = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findByPk(req.user?.id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const address = await Address.findByPk(id);
+    if (!address || address.userId !== user.id) {
+      throw new Error("Address not found");
+    }
+
+    user.defaultAddressId = +id;
+    await user.save();
+
+    res.json({
+      success: true,
+    });
+  } catch (error: any) {
+    res.status(550).json({ success: false, message: error.message });
   }
 };

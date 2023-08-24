@@ -28,5 +28,9 @@ UserRouter.post(
   joiValidation(changePasswordSchema),
   UserController.changePassword
 );
+UserRouter.get(
+  authEndpoints.SET_DEFAULT_ADDRESS,
+  UserController.setDefaultAddress
+);
 
 export default UserRouter;

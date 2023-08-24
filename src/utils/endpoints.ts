@@ -5,6 +5,7 @@ export enum authEndpoints {
   CHECK_EMAIL = "/auth/check/:email",
   VERIFY = "/auth/verify/:email",
   CHANGE_PASSWORD = "/auth/change",
+  SET_DEFAULT_ADDRESS = "/auth/set-address/:id",
 }
 
 export enum sizeEndpoints {
