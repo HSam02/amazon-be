@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {
+  IChangePasswordSchema,
   ILoginShcema,
   IRegisterShcema,
 } from "../validations/user.validation.js";
@@ -55,7 +56,7 @@ export const login = async (req: Request, res: Response) => {
       throw new Error("Wrong email or password");
     }
 
-    const isPassRight = await bcrypt.compare(password, user.passwordHash!);
+    const isPassRight = await bcrypt.compare(password, user.passwordHash);
     if (!isPassRight) {
       throw new Error("Wrong email or password");
     }
@@ -146,5 +147,42 @@ export const verify = async (req: Request, res: Response) => {
     res.json(token);
   } catch (error: any) {
     res.status(550).json({ success: false, message: error.message });
+  }
+};
+
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const { oldPassword, password } = req.body as IChangePasswordSchema;
+
+    const user = await User.findByPk(req.user?.id);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const isPassRight = await bcrypt.compare(oldPassword, user.passwordHash);
+    if (!isPassRight) {
+      throw new Error("Wrong password");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    user.passwordHash = passwordHash;
+    await user.save();
+
+    res.json({
+      success: true,
+    });
+  } catch (error: any) {
+    if (error.message === "Wrong password") {
+      return res.json({
+        success: false,
+      });
+    }
+    res.status(401).json({
+      message: error.message,
+    });
   }
 };

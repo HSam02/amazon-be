@@ -13,11 +13,18 @@ export interface ILoginShcema {
   password: string;
 }
 
+export interface IChangePasswordSchema {
+  oldPassword: string;
+  password: string;
+}
+
+const passwordSchema = Joi.string().min(8).max(16).required();
+
 export const registerSchema = Joi.object<IRegisterShcema>({
   firstName: Joi.string().min(2).max(15).required(),
   lastName: Joi.string().min(3).max(20).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).max(16).required(),
+  password: passwordSchema,
   verification: Joi.object()
     .required()
     .keys({
@@ -28,5 +35,10 @@ export const registerSchema = Joi.object<IRegisterShcema>({
 
 export const loginSchema = Joi.object<ILoginShcema>({
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).max(16).required(),
+  password: passwordSchema,
+});
+
+export const changePasswordSchema = Joi.object<IChangePasswordSchema>({
+  oldPassword: passwordSchema,
+  password: passwordSchema,
 });
