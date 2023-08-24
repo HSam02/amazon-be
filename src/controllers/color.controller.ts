@@ -48,7 +48,7 @@ export const remove = async (req: Request, res: Response) => {
 
 export const getAll = async (_req: Request, res: Response) => {
   try {
-    const colors = await Color.findAll();
+    const colors = await Color.findAll({ order: [["id", "ASC"]] });
     res.json(colors);
   } catch (error: any) {
     res.status(415).json({
