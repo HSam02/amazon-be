@@ -8,7 +8,10 @@ interface IUserAttributes {
 
 export default (sequelize: any, DataTypes: any) => {
   class User
-    extends Model<IUserAttributes & { id: number }, IUserAttributes>
+    extends Model<
+      IUserAttributes & { id: number; defaultAddressId: number | null },
+      IUserAttributes
+    >
     implements IUserAttributes
   {
     id!: number;
@@ -16,16 +19,18 @@ export default (sequelize: any, DataTypes: any) => {
     lastName!: string;
     email!: string;
     passwordHash!: string;
+    defaultAddressId!: number | null;
 
     createdAt!: Date;
     updatedAt!: Date;
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models: any) {
-      // define association here
+      User.hasMany(models.Address, {
+        foreignKey: "userId",
+        onDelete: "CASCADE",
+      });
+      User.hasOne(models.Address, {
+        foreignKey: "defaultAddressId",
+      });
     }
   }
   User.init(
@@ -40,6 +45,14 @@ export default (sequelize: any, DataTypes: any) => {
       lastName: { allowNull: false, type: DataTypes.STRING },
       email: { allowNull: false, unique: true, type: DataTypes.STRING },
       passwordHash: { allowNull: false, type: DataTypes.STRING },
+      defaultAddressId: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
+        references: {
+          key: "id",
+          model: "Addresses",
+        },
+      },
     },
     {
       sequelize,
