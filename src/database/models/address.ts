@@ -35,7 +35,6 @@ export default (sequelize: any, DataTypes: any) => {
       },
       value: {
         allowNull: false,
-        unique: true,
         type: DataTypes.STRING,
       },
       userId: {

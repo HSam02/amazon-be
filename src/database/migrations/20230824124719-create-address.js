@@ -41,7 +41,7 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Addresses");
     await queryInterface.removeColumn("Users", "defaultAddressId");
+    await queryInterface.dropTable("Addresses");
   },
 };

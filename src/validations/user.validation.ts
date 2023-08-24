@@ -18,7 +18,11 @@ export interface IChangePasswordSchema {
   password: string;
 }
 
-const passwordSchema = Joi.string().min(8).max(16).required();
+const passwordSchema = Joi.string()
+  .min(8)
+  .max(16)
+  .regex(/^[A-Za-z\d@$!%*?&]+$/)
+  .required();
 
 export const registerSchema = Joi.object<IRegisterShcema>({
   firstName: Joi.string().min(2).max(15).required(),

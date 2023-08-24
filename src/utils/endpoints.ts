@@ -27,3 +27,10 @@ export enum categoryEndpoints {
   UPDATE = "/category/:id",
   REMOVE = "/category/:id",
 }
+
+export enum addressEndpoints {
+  GET_ALL = "/address",
+  CREATE = "/address",
+  UPDATE = "/address/:id",
+  REMOVE = "/address/:id",
+}
