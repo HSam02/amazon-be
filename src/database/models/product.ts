@@ -8,6 +8,7 @@ interface IProductAttributes {
   price: string;
   categoryId: number | null;
   defaultImageId: number | null;
+  isAvailable: boolean;
 }
 
 export default (sequelize: any, DataTypes: any) => {
@@ -21,6 +22,7 @@ export default (sequelize: any, DataTypes: any) => {
     price!: string;
     categoryId!: number | null;
     defaultImageId!: number | null;
+    isAvailable!: boolean;
 
     static associate(models: any) {
       Product.belongsToMany(models.Size, { through: "ProductSizes" });
@@ -42,6 +44,10 @@ export default (sequelize: any, DataTypes: any) => {
       description: { allowNull: true, type: DataTypes.STRING },
       brand: { allowNull: false, type: DataTypes.STRING },
       price: { allowNull: false, type: DataTypes.STRING },
+      isAvailable: {
+        defaultValue: false,
+        type: DataTypes.BOOLEAN,
+      },
       categoryId: {
         allowNull: true,
         type: DataTypes.INTEGER,
