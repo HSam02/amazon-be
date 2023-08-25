@@ -23,7 +23,7 @@ export default (sequelize: any, DataTypes: any) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      value: { allowNull: false, unique: true, type: DataTypes.STRING },
+      value: { allowNull: false, unique: 'value', type: DataTypes.STRING },
     },
     {
       sequelize,

@@ -36,7 +36,7 @@ export default (sequelize: any, DataTypes: any) => {
       },
       title: {
         allowNull: false,
-        unique: true,
+        unique: 'title',
         type: DataTypes.STRING,
       },
       parentId: {

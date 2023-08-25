@@ -4,6 +4,7 @@ interface IUserAttributes {
   lastName: string;
   email: string;
   passwordHash: string;
+  defaultAddressId: number | null;
 }
 
 export default (sequelize: any, DataTypes: any) => {
@@ -43,15 +44,15 @@ export default (sequelize: any, DataTypes: any) => {
       },
       firstName: { allowNull: false, type: DataTypes.STRING },
       lastName: { allowNull: false, type: DataTypes.STRING },
-      email: { allowNull: false, unique: true, type: DataTypes.STRING },
+      email: { allowNull: false, unique: "email", type: DataTypes.STRING },
       passwordHash: { allowNull: false, type: DataTypes.STRING },
       defaultAddressId: {
         allowNull: true,
         type: DataTypes.INTEGER,
-        // references: {
-        //   key: "id",
-        //   model: "Addresses",
-        // },
+        references: {
+          key: "id",
+          model: "Addresses",
+        },
       },
     },
     {

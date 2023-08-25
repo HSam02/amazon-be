@@ -38,7 +38,7 @@ export default (sequelize: any, DataTypes: any) => {
         type: DataTypes.STRING,
       },
       userId: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.INTEGER,
         references: {
           key: "id",
