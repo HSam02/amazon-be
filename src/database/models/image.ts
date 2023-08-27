@@ -17,8 +17,8 @@ export default (sequelize: any, DataTypes: any) => {
     productId!: number;
 
     static associate(models: any) {
-      Image.belongsToMany(models.Product, { through: "ProductImages" });
-      Image.hasOne(models.Product, { foreignKey: "defaultImageId" });
+      Image.belongsTo(models.Product, { foreignKey: "defaultImageId" });
+      Image.belongsTo(models.Product, { foreignKey: "productId" });
     }
   }
   Image.init(
@@ -29,7 +29,7 @@ export default (sequelize: any, DataTypes: any) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      url: { unique: true, allowNull: false, type: DataTypes.STRING },
+      url: { allowNull: false, type: DataTypes.STRING },
       productId: {
         allowNull: false,
         type: DataTypes.INTEGER,

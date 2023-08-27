@@ -12,7 +12,11 @@ export default (sequelize: any, DataTypes: any) => {
     id!: number;
     value!: string;
     static associate(models: any) {
-      // define association here
+      Color.belongsToMany(models.Product, {
+        through: "ProductColors",
+        timestamps: false,
+        onDelete: "CASCADE",
+      });
     }
   }
   Color.init(
@@ -23,7 +27,7 @@ export default (sequelize: any, DataTypes: any) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      value: { allowNull: false, unique: 'value', type: DataTypes.STRING },
+      value: { allowNull: false, unique: "value", type: DataTypes.STRING },
     },
     {
       sequelize,

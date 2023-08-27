@@ -11,6 +11,7 @@ module.exports = {
           model: "Products",
           key: "id",
         },
+        onDelete: "CASCADE",
       },
       sizeId: {
         allowNull: false,
@@ -19,6 +20,7 @@ module.exports = {
           model: "Sizes",
           key: "id",
         },
+        onDelete: "CASCADE",
       },
     });
 
@@ -30,6 +32,7 @@ module.exports = {
           model: "Products",
           key: "id",
         },
+        onDelete: "CASCADE",
       },
       colorId: {
         allowNull: false,
@@ -38,25 +41,7 @@ module.exports = {
           model: "Colors",
           key: "id",
         },
-      },
-    });
-
-    await queryInterface.createTable("ProductImages", {
-      productId: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Products",
-          key: "id",
-        },
-      },
-      imageId: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Images",
-          key: "id",
-        },
+        onDelete: "CASCADE",
       },
     });
   },
@@ -64,6 +49,5 @@ module.exports = {
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("ProductSizes");
     await queryInterface.dropTable("ProductColors");
-    await queryInterface.dropTable("ProductImages");
   },
 };

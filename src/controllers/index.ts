@@ -3,3 +3,4 @@ export * as ColorController from "./color.controller.js";
 export * as SizeController from "./size.controller.js";
 export * as CategoryController from "./category.controller.js";
 export * as AddressController from "./address.controller.js";
+export * as ProductController from "./product.controller.js";

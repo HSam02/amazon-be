@@ -1,4 +1,5 @@
 import { Model } from "sequelize";
+import { Product } from "./models";
 
 interface ICategoryAttributes {
   title: string;
@@ -19,11 +20,17 @@ export default (sequelize: any, DataTypes: any) => {
         foreignKey: "parentId",
         onDelete: "CASCADE",
       });
-      Category.hasMany(models.Category, {
+      Category.hasOne(models.Category, {
         as: "children",
         foreignKey: "parentId",
         onDelete: "CASCADE",
       });
+      Category.hasMany(models.Product, {
+        foreignKey: "categoryId",
+      });
+      // Category.belongsTo(models.Product, {
+      //   foreignKey: "categoryId",
+      // });
     }
   }
   Category.init(
@@ -36,7 +43,7 @@ export default (sequelize: any, DataTypes: any) => {
       },
       title: {
         allowNull: false,
-        unique: 'title',
+        unique: "title",
         type: DataTypes.STRING,
       },
       parentId: {
@@ -52,6 +59,17 @@ export default (sequelize: any, DataTypes: any) => {
       sequelize,
       modelName: "Category",
       timestamps: false,
+      hooks: {
+        async beforeDestroy(instance) {
+          const product = await Product.findOne({
+            where: { categoryId: instance.id },
+          });
+          if (product) {
+            product.categoryId = null;
+            await product.save();
+          }
+        },
+      },
     }
   );
   return Category;

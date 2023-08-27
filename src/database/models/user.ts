@@ -1,4 +1,6 @@
 import { Model } from "sequelize";
+import * as models from "./models";
+
 interface IUserAttributes {
   firstName: string;
   lastName: string;
@@ -32,6 +34,10 @@ export default (sequelize: any, DataTypes: any) => {
       User.belongsTo(models.Address, {
         foreignKey: "defaultAddressId",
       });
+      User.hasMany(models.Product, {
+        sourceKey: "userId",
+        onDelete: "CASCADE",
+      });
     }
   }
   User.init(
@@ -60,5 +66,6 @@ export default (sequelize: any, DataTypes: any) => {
       modelName: "User",
     }
   );
+
   return User;
 };
