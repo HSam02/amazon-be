@@ -20,7 +20,7 @@ export default (sequelize: any, DataTypes: any) => {
         foreignKey: "userId",
         onDelete: "CASCADE",
       });
-      Address.hasOne(models.User, {
+      Address.belongsTo(models.User, {
         foreignKey: "defaultAddressId",
       });
     }

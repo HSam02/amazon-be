@@ -15,3 +15,10 @@ export const Category = categoryModelFunction(db.sequelize, DataTypes);
 export const Address = addressModelFunction(db.sequelize, DataTypes);
 export const Product = productModelFunction(db.sequelize, DataTypes);
 export const Image = imageModelFunction(db.sequelize, DataTypes);
+
+User.associate({ Product, Address });
+Category.associate({ Product });
+Product.associate({ User, Category, Size, Color });
+Size.associate({ Product });
+Color.associate({ Product });
+Address.associate({User})

@@ -22,20 +22,22 @@ export const create = async (req: Request, res: Response) => {
     await product.addSizes(sizeIds, t);
     await product.addColors(colorIds, t);
 
-    const newProduct = await Product.findByPk(product.id, {
+    await product.reload({
       include: [
-        User,
-        { model: Category, as: "category" },
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "firstName", "lastName"],
+        },
+        { model: Category, as: "category", attributes: ["title"] },
         { model: Size, as: "sizes" },
         { model: Color, as: "colors" },
       ],
-      // include: { model: Category, as: "category" },
+      transaction: t,
     });
 
-    // const [newProduct] = await Product.getProducts([product.id], t);
-
     await t.commit();
-    res.json(newProduct);
+    res.json(product);
   } catch (error: any) {
     await t.rollback();
     res.status(415).json({

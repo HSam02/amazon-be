@@ -32,19 +32,29 @@ export default (sequelize: any, DataTypes: any) => {
         through: "ProductSizes",
         timestamps: false,
         onDelete: "CASCADE",
+        foreignKey: "productId",
+        as: "sizes",
       });
       Product.belongsToMany(models.Color, {
         through: "ProductColors",
         timestamps: false,
         onDelete: "CASCADE",
-      });
-      Product.belongsTo(models.User, { foreignKey: "userId", as: "user" });
-      Product.belongsTo(models.Category, { foreignKey: "categoryId" });
-      Product.hasOne(models.Image, { foreignKey: "defaultImageId" });
-      Product.hasMany(models.Image, {
         foreignKey: "productId",
-        onDelete: "CASCADE",
+        as: "colors",
       });
+      Product.belongsTo(models.User, {
+        foreignKey: "userId",
+        as: "user",
+      });
+      Product.belongsTo(models.Category, {
+        foreignKey: "categoryId",
+        as: "category",
+      });
+      // Product.hasOne(models.Image, { sourceKey: "defaultImageId" });
+      // Product.hasMany(models.Image, {
+      //   sourceKey: "productId",
+      //   onDelete: "CASCADE",
+      // });
     }
 
     public async addSizes(sizeIds: number[], transaction: any) {

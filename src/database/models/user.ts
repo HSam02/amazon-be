@@ -29,13 +29,17 @@ export default (sequelize: any, DataTypes: any) => {
     static associate(models: any) {
       User.hasMany(models.Address, {
         foreignKey: "userId",
+        sourceKey: "id",
         onDelete: "CASCADE",
       });
-      User.belongsTo(models.Address, {
+      User.hasOne(models.Address, {
         foreignKey: "defaultAddressId",
+        sourceKey: "id",
+        onDelete: "CASCADE",
       });
       User.hasMany(models.Product, {
-        sourceKey: "userId",
+        foreignKey: "userId",
+        sourceKey: "id",
         onDelete: "CASCADE",
       });
     }

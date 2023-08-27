@@ -15,22 +15,19 @@ export default (sequelize: any, DataTypes: any) => {
     title!: string;
     parentId?: number;
     static associate(models: any) {
-      Category.belongsTo(models.Category, {
-        as: "parent",
+      Category.belongsTo(Category, {
         foreignKey: "parentId",
-        onDelete: "CASCADE",
       });
-      Category.hasOne(models.Category, {
-        as: "children",
+      Category.hasOne(Category, {
         foreignKey: "parentId",
+        sourceKey: "id",
         onDelete: "CASCADE",
       });
       Category.hasMany(models.Product, {
         foreignKey: "categoryId",
+        sourceKey: "id",
+        as: "category",
       });
-      // Category.belongsTo(models.Product, {
-      //   foreignKey: "categoryId",
-      // });
     }
   }
   Category.init(

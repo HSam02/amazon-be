@@ -16,6 +16,7 @@ export default (sequelize: any, DataTypes: any) => {
         through: "ProductSizes",
         timestamps: false,
         onDelete: "CASCADE",
+        foreignKey: "sizeId",
       });
     }
   }

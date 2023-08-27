@@ -16,6 +16,7 @@ export default (sequelize: any, DataTypes: any) => {
         through: "ProductColors",
         timestamps: false,
         onDelete: "CASCADE",
+        foreignKey: "colorId",
       });
     }
   }
