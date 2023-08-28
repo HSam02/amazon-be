@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 require("dotenv").config();
 import db from "./database/models";
-import checkAuth from "./utils/checkAuth";
+import checkAuth from "./middlewares/checkAuth";
 import router from "./router";
 
 const port = Number(process.env.PORT);

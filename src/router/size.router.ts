@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { SizeController } from "../controllers";
-import checkAdmin from "../utils/checkAdmin";
-import { joiValidation } from "../utils/joiValidation";
+import checkAdmin from "../middlewares/checkAdmin";
+import { joiValidation } from "../middlewares/joiValidation";
 import { sizeSchema } from "../validations/size.validation";
 import { sizeEndpoints } from "../utils/endpoints";
 

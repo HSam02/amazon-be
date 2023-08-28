@@ -1,5 +1,5 @@
 "use strict";
-import { Model } from "sequelize";
+import { Model, Transaction } from "sequelize";
 
 interface IProductAttributes {
   name: string;
@@ -26,7 +26,10 @@ export default (sequelize: any, DataTypes: any) => {
     categoryId!: number | null;
     defaultImageId!: number | null;
     isAvailable?: boolean;
+    [key: string]: any;
 
+    createdAt!: Date;
+    updatedAt!: Date;
     static associate(models: any) {
       Product.belongsToMany(models.Size, {
         through: "ProductSizes",
@@ -42,6 +45,16 @@ export default (sequelize: any, DataTypes: any) => {
         foreignKey: "productId",
         as: "colors",
       });
+      Product.belongsTo(models.Image, {
+        foreignKey: "defaultImageId",
+        as: "defaultImg",
+      });
+      Product.hasMany(models.Image, {
+        foreignKey: "productId",
+        sourceKey: "id",
+        onDelete: "CASCADE",
+        as: "images",
+      });
       Product.belongsTo(models.User, {
         foreignKey: "userId",
         as: "user",
@@ -50,14 +63,9 @@ export default (sequelize: any, DataTypes: any) => {
         foreignKey: "categoryId",
         as: "category",
       });
-      // Product.hasOne(models.Image, { sourceKey: "defaultImageId" });
-      // Product.hasMany(models.Image, {
-      //   sourceKey: "productId",
-      //   onDelete: "CASCADE",
-      // });
     }
 
-    public async addSizes(sizeIds: number[], transaction: any) {
+    public async addSizes(sizeIds: number[], transaction: Transaction) {
       try {
         const records = sizeIds.map((sizeId) => ({
           productId: this.id,
@@ -76,7 +84,7 @@ export default (sequelize: any, DataTypes: any) => {
       }
     }
 
-    public async addColors(colorIds: number[], transaction: any) {
+    public async addColors(colorIds: number[], transaction: Transaction) {
       try {
         const records = colorIds.map((colorId) => ({
           productId: this.id,
@@ -95,18 +103,35 @@ export default (sequelize: any, DataTypes: any) => {
       }
     }
 
-    // static async getProducts(productIds: number[], transaction: any) {
-    //   try {
-    //     const products = await Product.findAll({
-    //       where: { id: productIds },
-    //       include: "Users",
-    //       transaction,
-    //     });
-    //     return products;
-    //   } catch (error) {
-    //     throw error;
-    //   }
-    // }
+    public async removeSizes(sizeIds: number[], transaction: Transaction) {
+      try {
+        await sequelize.query(
+          `DELETE FROM ProductSizes WHERE sizeId IN (${sizeIds.join(
+            ","
+          )}) AND productId = ${this.id}`,
+          {
+            transaction,
+          }
+        );
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    public async removeColors(colorIds: number[], transaction: Transaction) {
+      try {
+        await sequelize.query(
+          `DELETE FROM ProductColors WHERE colorId IN (${colorIds.join(
+            ","
+          )}) AND productId = ${this.id}`,
+          {
+            transaction,
+          }
+        );
+      } catch (error) {
+        throw error;
+      }
+    }
   }
 
   Product.init(

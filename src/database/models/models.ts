@@ -18,7 +18,8 @@ export const Image = imageModelFunction(db.sequelize, DataTypes);
 
 User.associate({ Product, Address });
 Category.associate({ Product });
-Product.associate({ User, Category, Size, Color });
+Product.associate({ User, Category, Size, Color, Image });
 Size.associate({ Product });
 Color.associate({ Product });
-Address.associate({User})
+Address.associate({ User });
+Image.associate({ Product });

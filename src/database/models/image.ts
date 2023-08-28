@@ -17,7 +17,10 @@ export default (sequelize: any, DataTypes: any) => {
     productId!: number;
 
     static associate(models: any) {
-      Image.belongsTo(models.Product, { foreignKey: "defaultImageId" });
+      Image.hasOne(models.Product, {
+        foreignKey: "defaultImageId",
+        sourceKey: "id",
+      });
       Image.belongsTo(models.Product, { foreignKey: "productId" });
     }
   }
@@ -48,6 +51,7 @@ export default (sequelize: any, DataTypes: any) => {
           const product = await Product.findByPk(instance.productId);
           if (product?.defaultImageId === instance.id) {
             product.defaultImageId = null;
+            product.isAvailable = false;
             await product.save();
           }
         },
