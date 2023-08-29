@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 require("dotenv").config();
 import db from "./database/models";
-import setUser from "./middlewares/checkAdmin";
+import setUser from "./middlewares/setUser";
 import router from "./router";
 
 const port = Number(process.env.PORT);
