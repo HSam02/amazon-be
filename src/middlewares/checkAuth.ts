@@ -1,39 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import { Role } from "./setUser.js";
 
-export enum Role {
-  Guest = "guest",
-  User = "user",
-  Admin = "admin",
-}
-
-declare module "express" {
-  interface Request {
-    user?: {
-      id: number;
-      role: Role;
-    };
-  }
-}
-
-export default (req: Request, _res: Response, next: NextFunction) => {
-  try {
-    const token = req.headers.authorization?.replace(/Bearer /, "");
-    if (!token) {
-      throw new Error();
-    }
-
-    const { id } = <jwt.JwtPayload>jwt.verify(token, process.env.JWT_SECRET || "");
-    req.user = {
-      id,
-      role: id === 1 ? Role.Admin : Role.User,
-    };
-  } catch (error) {
-    req.user = {
-      id: NaN,
-      role: Role.Guest,
-    };
-  } finally {
+export default (req: Request, res: Response, next: NextFunction) => {
+  if (req.user?.role !== Role.Guest) {
     next();
+  } else {
+    res.status(403).json({ message: "No Authorized!" });
   }
 };

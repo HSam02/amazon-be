@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ColorController } from "../controllers";
 import checkAdmin from "../middlewares/checkAdmin";
-import { joiValidation } from "../middlewares/joiValidation";
+import joiValidation  from "../middlewares/joiValidation";
 import { colorSchema } from "../validations/color.validation";
 import { colorEndpoints } from "../utils/endpoints";
 

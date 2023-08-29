@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 require("dotenv").config();
 import db from "./database/models";
-import checkAuth from "./middlewares/checkAuth";
+import setUser from "./middlewares/checkAdmin";
 import router from "./router";
 
 const port = Number(process.env.PORT);
@@ -10,8 +10,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(checkAuth);
+app.use(setUser);
 app.use(router);
+app.use("/uploads", express.static("./src/uploads"));
 
 db.sequelize
   .sync()

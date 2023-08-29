@@ -8,7 +8,7 @@ import {
 } from "../validations/user.validation.js";
 import { IMessage, sendMail } from "../utils/sendMail.js";
 import { getSixDigitCode } from "../utils/getSixDigitCode.js";
-import { Role } from "../middlewares/checkAuth.js";
+import { Role } from "../middlewares/setUser.js";
 import { Address, User } from "../database/models/models.js";
 
 export const register = async (req: Request, res: Response) => {

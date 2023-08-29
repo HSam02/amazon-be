@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { joiValidation } from "../middlewares/joiValidation";
+import joiValidation  from "../middlewares/joiValidation";
 import { UserController } from "../controllers";
 import {
   changePasswordSchema,

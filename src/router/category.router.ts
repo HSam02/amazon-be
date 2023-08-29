@@ -1,6 +1,6 @@
 import { Router } from "express";
 import checkAdmin from "../middlewares/checkAdmin";
-import { joiValidation } from "../middlewares/joiValidation";
+import joiValidation  from "../middlewares/joiValidation";
 import {
   categoryCreateSchema,
   categoryUpdateSchema,

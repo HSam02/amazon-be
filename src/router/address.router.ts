@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { addressEndpoints } from "../utils/endpoints";
-import { joiValidation } from "../middlewares/joiValidation";
+import joiValidation  from "../middlewares/joiValidation";
 import { addressSchema } from "../validations/address.validations";
 import { AddressController } from "../controllers";
 

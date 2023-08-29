@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
 
-export const joiValidation =
+const joiValidation =
   (schema: Joi.Schema) => (req: Request, res: Response, next: NextFunction) => {
     let field = req.body;
 
@@ -27,3 +27,5 @@ export const joiValidation =
 
     next();
   };
+
+export default joiValidation;
