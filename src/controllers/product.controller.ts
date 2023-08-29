@@ -140,10 +140,12 @@ export const update = async (req: Request, res: Response) => {
       );
     }
 
-    transaction.commit();
-    res.json({ success: true });
+    await transaction.commit();
+
+    product.reload({ include: includeAll });
+    res.json({ success: true, product });
   } catch (error: any) {
-    transaction.rollback();
+    await transaction.rollback();
     res.status(415).json({
       success: false,
       message: error.message,
