@@ -49,6 +49,9 @@ const upload = multer({
     }
     callback(null, true);
   },
-}).array("media", 10);
+}).fields([
+  { name: "default", maxCount: 1 },
+  { name: "media", maxCount: 8 },
+]);
 
 export default upload;

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Role } from "./setUser.js";
+import { Role } from "./setUser";
 
 export default (req: Request, res: Response, next: NextFunction) => {
   if (req.user?.role === Role.Admin) {

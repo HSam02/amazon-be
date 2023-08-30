@@ -1,6 +1,7 @@
 "use strict";
 import { Model } from "sequelize";
 import { User } from "./models";
+import db from ".";
 
 interface IAddressAttributes {
   value: string;
@@ -49,15 +50,6 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: "Address",
-      hooks: {
-        async beforeDestroy(instance) {
-          const user = await User.findByPk(instance.userId);
-          if (user?.defaultAddressId === instance.id) {
-            user.defaultAddressId = null;
-            await user.save();
-          }
-        },
-      },
     }
   );
   return Address;

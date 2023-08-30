@@ -5,11 +5,11 @@ import {
   IChangePasswordSchema,
   ILoginShcema,
   IRegisterShcema,
-} from "../validations/user.validation.js";
-import { IMessage, sendMail } from "../utils/sendMail.js";
-import { getSixDigitCode } from "../utils/getSixDigitCode.js";
-import { Role } from "../middlewares/setUser.js";
-import { Address, User } from "../database/models/models.js";
+} from "../validations/user.validation";
+import { IMessage, sendMail } from "../utils/sendMail";
+import { getSixDigitCode } from "../utils/getSixDigitCode";
+import { Role } from "../middlewares/setUser";
+import { Address, User } from "../database/models/models";
 
 export const register = async (req: Request, res: Response) => {
   try {

@@ -26,7 +26,7 @@ export interface IProductUpdateSchema {
 
 export const productCreateSchema = Joi.object<IProductCreateSchema>({
   name: Joi.string().min(3).max(15).required(),
-  description: Joi.string().max(150).optional(),
+  description: [Joi.string().max(150).optional(), Joi.allow(null)],
   brand: Joi.string().min(2).max(15).required(),
   price: Joi.string().min(1).max(15).required(),
   categoryId: Joi.number().required(),
@@ -37,11 +37,10 @@ export const productCreateSchema = Joi.object<IProductCreateSchema>({
 
 export const productUpdateSchema = Joi.object<IProductUpdateSchema>({
   name: Joi.string().min(3).max(15).optional(),
-  description: Joi.string().max(150).optional(),
+  description: [Joi.string().max(150).optional(), Joi.allow(null)],
   brand: Joi.string().min(2).max(15).optional(),
   price: Joi.string().min(1).max(15).optional(),
   categoryId: Joi.number().optional(),
-  defaultImageId: Joi.number().optional(),
   isAvailable: Joi.boolean().optional(),
   sizeIds: Joi.array().items(Joi.number()).optional(),
   colorIds: Joi.array().items(Joi.number()).optional(),

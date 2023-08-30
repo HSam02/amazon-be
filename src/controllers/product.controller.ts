@@ -10,16 +10,24 @@ import {
 import updateSizesOrColors from "../utils/product/updateSizesOrColors";
 import {
   includeAll,
+  includeDefaultImage,
   includeImages,
   includeSizesColors,
 } from "../utils/product/includes";
 
 export const create = async (req: Request, res: Response) => {
   const transaction: Transaction = await db.sequelize.transaction();
+  const reqFiles = req.files as {
+    [key: string]: Express.Multer.File[] | undefined;
+  };
+  const file =
+    reqFiles?.default && reqFiles.default.length > 0
+      ? reqFiles.default[0]
+      : undefined;
+  const files = reqFiles?.media;
   try {
     const { sizeIds, colorIds, ...otherData } =
       req.body as IProductCreateSchema;
-    const files = req.files as Express.Multer.File[];
 
     const product = await Product.create(
       { ...otherData, userId: req.user!.id },
@@ -28,14 +36,24 @@ export const create = async (req: Request, res: Response) => {
     await product.addSizes(sizeIds, transaction);
     await product.addColors(colorIds, transaction);
 
-    const fileDests = files.map((file) => ({
-      url: file.destination.slice(5) + "/" + file.filename,
-      productId: product.id,
-    }));
+    const fileDests =
+      files?.map((file) => ({
+        url: file.destination.slice(5) + "/" + file.filename,
+        productId: product.id,
+      })) || [];
+
+    if (file) {
+      fileDests.unshift({
+        url: file.destination.slice(5) + "/" + file.filename,
+        productId: product.id,
+      });
+    }
 
     const images = await Image.bulkCreate(fileDests, { transaction });
 
-    product.defaultImageId = images[0].id;
+    if (file) {
+      product.defaultImageId = images[0].id;
+    }
 
     await product.save({
       transaction,
@@ -52,6 +70,14 @@ export const create = async (req: Request, res: Response) => {
     res.json(resData);
   } catch (error: any) {
     await transaction.rollback();
+    files?.forEach(
+      ({ destination, filename }) =>
+        fs.existsSync(destination + filename) &&
+        fs.unlinkSync(destination + filename)
+    );
+    if (file && fs.existsSync(file.destination + file.filename)) {
+      fs.unlinkSync(file.destination + file.filename);
+    }
     res.status(415).json({
       message: error.message,
     });
@@ -60,14 +86,21 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   const transaction: Transaction = await db.sequelize.transaction();
+  const reqFiles = req.files as {
+    [key: string]: Express.Multer.File[] | undefined;
+  };
+  const file =
+    reqFiles?.default && reqFiles.default.length > 0
+      ? reqFiles.default[0]
+      : undefined;
+  const files = reqFiles?.media;
   try {
     const id = req.params.id;
     const { sizeIds, colorIds, imageIds, ...updateData } =
       req.body as IProductUpdateSchema;
-    const files = req.files as Express.Multer.File[];
 
     const product = await Product.findByPk(id, {
-      include: [includeImages, ...includeSizesColors],
+      include: [includeDefaultImage, includeImages, ...includeSizesColors],
     });
 
     if (!product) {
@@ -88,7 +121,9 @@ export const update = async (req: Request, res: Response) => {
       );
 
       const removingImageIds = oldImageIds.filter(
-        (oldImageId) => !imageIds.includes(oldImageId)
+        (oldImageId) =>
+          !imageIds.includes(oldImageId) &&
+          oldImageId !== product.defaultImageId
       );
       if (removingImageIds.length) {
         await Image.destroy({ where: { id: removingImageIds }, transaction });
@@ -101,18 +136,26 @@ export const update = async (req: Request, res: Response) => {
       }
     }
 
-    if (files?.length) {
-      const fileDests = files.map((file) => ({
+    const fileDests =
+      files?.map((file) => ({
         url: file.destination.slice(5) + "/" + file.filename,
         productId: product.id,
-      }));
+      })) || [];
 
-      const images = await Image.bulkCreate(fileDests, { transaction });
-
-      updateData.defaultImageId = updateData.defaultImageId || images[0].id;
+    if (file) {
+      fileDests.unshift({
+        url: file.destination.slice(5) + "/" + file.filename,
+        productId: product.id,
+      });
     }
 
-    await product.update(updateData, { transaction });
+    if (fileDests.length) {
+      const images = await Image.bulkCreate(fileDests, { transaction });
+
+      if (file) {
+        updateData.defaultImageId = images[0].id;
+      }
+    }
 
     if (sizeIds) {
       const oldSizeIds: number[] = product.sizes.map(
@@ -122,8 +165,8 @@ export const update = async (req: Request, res: Response) => {
         oldSizeIds,
         sizeIds,
         transaction,
-        product.removeSizes,
-        product.addSizes
+        product.removeSizes.bind(product),
+        product.addSizes.bind(product)
       );
     }
 
@@ -135,17 +178,38 @@ export const update = async (req: Request, res: Response) => {
         oldColorIds,
         colorIds,
         transaction,
-        product.removeColors,
-        product.addColors
+        product.removeColors.bind(product),
+        product.addColors.bind(product)
       );
     }
 
+    if (
+      file &&
+      product.defaultImg &&
+      fs.existsSync("./src" + product.defaultImg.url)
+    ) {
+      fs.unlinkSync("./src" + product.defaultImage.url);
+    }
+
+    await product.update(updateData, { transaction });
+
     await transaction.commit();
 
-    product.reload({ include: includeAll });
-    res.json({ success: true, product });
+    await product.reload({ include: includeAll });
+    const images = product.images.filter(
+      ({ id }: { id: number }) => id !== product.defaultImageId
+    );
+    res.json({ success: true, product: { ...product.dataValues, images } });
   } catch (error: any) {
     await transaction.rollback();
+    files?.forEach(
+      ({ destination, filename }) =>
+        fs.existsSync(destination + filename) &&
+        fs.unlinkSync(destination + filename)
+    );
+    if (file && fs.existsSync(file.destination + file.filename)) {
+      fs.unlinkSync(file.destination + file.filename);
+    }
     res.status(415).json({
       success: false,
       message: error.message,
@@ -175,9 +239,7 @@ export const remove = async (req: Request, res: Response) => {
 
     await product.destroy();
 
-    const images = product.images;
-
-    images.forEach(
+    product.images.forEach(
       ({ url }: { url: string }) =>
         fs.existsSync(`./src${url}`) && fs.unlinkSync(`./src${url}`)
     );
@@ -200,13 +262,17 @@ export const getUserProducts = async (req: Request, res: Response) => {
       limit: +limit,
       offset: (+page - 1) * +limit,
       distinct: true,
+      order: [["id", "DESC"]],
     });
 
     const products = rows.map((product) => {
+      const images = product.images.filter(
+        ({ id }: { id: number }) => id !== product.defaultImageId
+      );
       const { userId, categoryId, defaultImageId, ...resData } =
         product.dataValues;
 
-      return resData;
+      return { ...resData, images };
     });
 
     res.json({ products, pagination: { count, page } });

@@ -56,17 +56,6 @@ export default (sequelize: any, DataTypes: any) => {
       sequelize,
       modelName: "Category",
       timestamps: false,
-      hooks: {
-        async beforeDestroy(instance) {
-          const product = await Product.findOne({
-            where: { categoryId: instance.id },
-          });
-          if (product) {
-            product.categoryId = null;
-            await product.save();
-          }
-        },
-      },
     }
   );
   return Category;

@@ -1,5 +1,5 @@
 import { readdirSync } from "fs";
-import { basename as _basename, join } from "path";
+import { basename as _basename } from "path";
 import { Sequelize, DataTypes } from "sequelize";
 import { env as _env } from "process";
 import * as configs from "../config/config.json";
@@ -26,12 +26,17 @@ readdirSync(__dirname)
     return (
       file.indexOf(".") !== 0 &&
       file !== basename &&
+      file !== "models.ts" &&
       file.slice(-3) === ".ts" &&
       file.indexOf(".test.ts") === -1
     );
   })
   .forEach((file) => {
-    const model = require(join(__dirname, file)).default(sequelize, DataTypes);
+    const model = require(`./${file.replace(".ts", "")}`).default(
+      sequelize,
+      DataTypes
+    );
+
     db[model.name] = model;
   });
 

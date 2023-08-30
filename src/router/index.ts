@@ -1,14 +1,14 @@
 import { Router } from "express";
 import fs from "fs";
-import path from "path";
 
 const router = Router();
 
 const routerFiles = fs.readdirSync(__dirname);
 
 routerFiles.forEach((file) => {
-  if (file.endsWith(".router.js")) {
-    const routerModule = require(path.join(__dirname, file));
+  if (file.endsWith(".router.ts")) {
+    const routerModule = require(`./${file.replace(".ts", "")}`);
+
     if (routerModule.default && typeof routerModule.default === "function") {
       router.use(routerModule.default);
     }

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { ISizeSchema } from "../validations/size.validation.js";
-import { Size } from "../database/models/models.js";
+import { ISizeSchema } from "../validations/size.validation";
+import { Size } from "../database/models/models";
 
 export const create = async (req: Request, res: Response) => {
   try {

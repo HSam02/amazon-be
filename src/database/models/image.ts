@@ -46,16 +46,6 @@ export default (sequelize: any, DataTypes: any) => {
       timestamps: false,
       sequelize,
       modelName: "Image",
-      hooks: {
-        async beforeDestroy(instance) {
-          const product = await Product.findByPk(instance.productId);
-          if (product?.defaultImageId === instance.id) {
-            product.defaultImageId = null;
-            product.isAvailable = false;
-            await product.save();
-          }
-        },
-      },
     }
   );
   return Image;

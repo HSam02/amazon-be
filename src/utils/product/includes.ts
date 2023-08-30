@@ -18,18 +18,20 @@ export const includeSizesColors: Includeable[] = [
   { model: Color, as: "colors", through: { attributes: [] } },
 ];
 
+export const includeDefaultImage: Includeable = {
+  model: Image,
+  as: "defaultImg",
+  attributes: { exclude: ["productId"] },
+};
+
 export const includeAll: Includeable[] = [
   {
     model: User,
     as: "user",
     attributes: ["id", "firstName", "lastName"],
   },
-  { model: Category, as: "category", attributes: ["title"] },
-  {
-    model: Image,
-    as: "defaultImg",
-    attributes: { exclude: ["productId"] },
-  },
+  { model: Category, as: "category", attributes: { exclude: ["parentId"] } },
+  includeDefaultImage,
   includeImages,
   ...includeSizesColors,
 ];
