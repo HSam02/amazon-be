@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Transaction } from "sequelize";
+import { Transaction, Op } from "sequelize";
 import fs from "fs";
 import db from "../database/models";
 import { Product, Image } from "../database/models/models";
@@ -9,6 +9,7 @@ import {
 } from "../validations/product.validations";
 import updateSizesOrColors from "../utils/product/updateSizesOrColors";
 import {
+  filterInclude,
   includeAll,
   includeDefaultImage,
   includeImages,
@@ -271,6 +272,75 @@ export const getUserProducts = async (req: Request, res: Response) => {
     });
 
     const products = rows.map((product) => {
+      const images = product.images.filter(
+        ({ id }: { id: number }) => id !== product.defaultImageId
+      );
+      const { userId, categoryId, defaultImageId, ...resData } =
+        product.dataValues;
+
+      return { ...resData, images };
+    });
+
+    res.json({ products, pagination: { count, page: +page, limit: +limit } });
+  } catch (error: any) {
+    res.status(415).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getAll = async (req: Request, res: Response) => {
+  try {
+    const {
+      limit = 10,
+      page = 1,
+      ...filters
+    } = req.query as Partial<
+      Omit<IProductCreateSchema, "isAvailable" | "description" | "price"> & {
+        limit: number;
+        page: number;
+      }
+    >;
+
+    const { brand, name, categoryId, colorIds, sizeIds } = filters;
+    const where: any = {};
+    if (name) {
+      where.name = { [Op.like]: name };
+    }
+    if (brand) {
+      where.brand = { [Op.like]: brand };
+    }
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+    console.log(colorIds);
+
+    // if (colorIds) {
+    //   where["$colors.id$"] = { [Op.in]: colorIds };
+    // }
+    // if (sizeIds) {
+    //   where["$sizes.id$"] = { [Op.in]: sizeIds };
+    // }
+
+    const { count, rows } = await Product.findAndCountAll({
+      where: { ...where, "$colors.id$": { [Op.in]: colorIds } },
+      include: filterInclude(
+        colorIds?.map((id) => +id),
+        sizeIds?.map((id) => +id)
+      ),
+      limit: +limit,
+      offset: (+page - 1) * +limit,
+      distinct: true,
+      order: [["id", "DESC"]],
+    });
+
+    const newRows = await Product.findAll({
+      where: { id: { [Op.in]: rows.map(({ id }) => id) } },
+      include: { all: true },
+      order: [["id", "DESC"]],
+    });
+
+    const products = newRows.map((product) => {
       const images = product.images.filter(
         ({ id }: { id: number }) => id !== product.defaultImageId
       );

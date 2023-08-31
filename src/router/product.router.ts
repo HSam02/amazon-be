@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { productEndpoints } from "../utils/endpoints";
+import { ProductController } from "../controllers";
 import checkAuth from "../middlewares/checkAuth";
 import upload from "../middlewares/multer";
 import joiValidation from "../middlewares/joiValidation";
-import { ProductController } from "../controllers";
+import { productEndpoints } from "../utils/endpoints";
 import {
   productCreateSchema,
   productUpdateSchema,
@@ -35,5 +35,6 @@ ProductRouter.get(
   checkAuth,
   ProductController.getUserProducts
 );
+ProductRouter.get(productEndpoints.GET_ALL, ProductController.getAll);
 
 export default ProductRouter;
