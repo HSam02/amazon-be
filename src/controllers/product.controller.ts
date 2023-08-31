@@ -67,7 +67,12 @@ export const create = async (req: Request, res: Response) => {
     await transaction.commit();
     const { userId, categoryId, defaultImageId, ...resData } =
       product.dataValues;
-    res.json(resData);
+    res.json({
+      ...resData,
+      images: product.images.filter(
+        ({ id }: { id: number }) => id !== product.defaultImageId
+      ),
+    });
   } catch (error: any) {
     await transaction.rollback();
     files?.forEach(
@@ -275,7 +280,7 @@ export const getUserProducts = async (req: Request, res: Response) => {
       return { ...resData, images };
     });
 
-    res.json({ products, pagination: { count, page } });
+    res.json({ products, pagination: { count, page: +page, limit: +limit } });
   } catch (error: any) {
     res.status(415).json({
       message: error.message,

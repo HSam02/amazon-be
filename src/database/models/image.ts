@@ -21,7 +21,10 @@ export default (sequelize: any, DataTypes: any) => {
         foreignKey: "defaultImageId",
         sourceKey: "id",
       });
-      Image.belongsTo(models.Product, { foreignKey: "productId" });
+      Image.belongsTo(models.Product, {
+        foreignKey: "productId",
+        onDelete: "CASCADE",
+      });
     }
   }
   Image.init(

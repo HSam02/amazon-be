@@ -52,7 +52,6 @@ export default (sequelize: any, DataTypes: any) => {
       Product.hasMany(models.Image, {
         foreignKey: "productId",
         sourceKey: "id",
-        onDelete: "CASCADE",
         as: "images",
       });
       Product.belongsTo(models.User, {
