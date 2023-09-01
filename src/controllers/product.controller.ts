@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Transaction, Op } from "sequelize";
+import { Transaction, Op, QueryTypes } from "sequelize";
 import fs from "fs";
 import db from "../database/models";
 import { Product, Image } from "../database/models/models";
@@ -15,6 +15,8 @@ import {
   includeImages,
   includeSizesColors,
 } from "../utils/product/includes";
+import { Sequelize } from "sequelize-typescript";
+import { log } from "console";
 
 export const create = async (req: Request, res: Response) => {
   const transaction: Transaction = await db.sequelize.transaction();
@@ -324,23 +326,51 @@ export const getAll = async (req: Request, res: Response) => {
     const { count, rows } = await Product.findAndCountAll({
       where: {
         ...where,
-        userId: { [Op.ne]: req.user?.id || 0 },
-        isAvailable: true,
+        // userId: { [Op.ne]: req.user?.id || 0 },
+        // isAvailable: true,
       },
-      include: includeAll,
-      limit: +limit,
-      offset: (+page - 1) * +limit,
-      distinct: true,
+      include: filterInclude(colorIds || [], sizeIds || []),
+      // group: ['Product.id'],
+      // having: db.sequelize.literal('COUNT(amazonDB.ProductColors.colorId) = 2'),
+      // group: ["Product.id"], // Group by product to ensure they have both colors
+      // having: Sequelize.literal(`COUNT(Colors.id) = ${colorIds?.length}`),
+      // limit: +limit,
+      // offset: (+page - 1) * +limit,
+      // distinct: true,
+      // order: [["id", "DESC"]],
+    });
+    const productsWithColors = await db.sequelize.query(`
+    SELECT DISTINCT p.*, c_blue.value as bName, c_green.value as gname
+    FROM Products p
+    INNER JOIN ProductColors pc_blue ON p.id = pc_blue.ProductId
+    INNER JOIN Colors c_blue ON pc_blue.ColorId = c_blue.id AND c_blue.id = 6
+    INNER JOIN ProductColors pc_green ON p.id = pc_green.ProductId
+    INNER JOIN Colors c_green ON pc_green.ColorId = c_green.id AND c_green.id = 9
+  `, {
+    model: Product,
+    mapToModel: true,
+    type: QueryTypes.SELECT
+  });
+  const productCount = await db.sequelize.query(`
+  SELECT DISTINCT COUNT(p.id) as count
+  FROM Products p
+  INNER JOIN ProductColors pc_blue ON p.id = pc_blue.ProductId
+  INNER JOIN Colors c_blue ON pc_blue.ColorId = c_blue.id AND c_blue.id = 6
+  INNER JOIN ProductColors pc_green ON p.id = pc_green.ProductId
+  INNER JOIN Colors c_green ON pc_green.ColorId = c_green.id AND c_green.id = 9
+`, {
+  model: Product,
+  mapToModel: true,
+  type: QueryTypes.SELECT
+});
+console.log('productsWithColors', productsWithColors, productCount[0].count)
+    const newRows = await Product.findAll({
+      where: { id: { [Op.in]: rows.map(({ id }) => id) } },
+      include: { all: true },
       order: [["id", "DESC"]],
     });
 
-    // const newRows = await Product.findAll({
-    //   where: { id: { [Op.in]: rows.map(({ id }) => id) } },
-    //   include: { all: true },
-    //   order: [["id", "DESC"]],
-    // });
-
-    const products = rows.map((product) => {
+    const products = newRows.map((product) => {
       const images = product.images.filter(
         ({ id }: { id: number }) => id !== product.defaultImageId
       );
@@ -350,10 +380,12 @@ export const getAll = async (req: Request, res: Response) => {
       return { ...resData, images };
     });
 
-    res.json({ products, pagination: { count, page: +page, limit: +limit } });
+    res.json({ products: productsWithColors, pagination: { count: productCount[0].count, page: +page, limit: +limit } });
   } catch (error: any) {
-    res.status(415).json({
-      message: error.message,
+    console.log("Error getAll", error);
+
+    res.status(500).json({
+      message: "Internal server error",
     });
   }
 };

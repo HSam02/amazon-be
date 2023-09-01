@@ -48,37 +48,35 @@ export const filterInclude = (
   if (colorIds) {
     colorThrough.where = { colorId: { [Op.and]: { [Op.in]: colorIds } } };
   }
+  console.log('colorIds', { [Op.or]: colorIds.map(i => ({
+    id: i
+  })) },);
   return [
     {
       model: Color,
-      through: {
-        attributes: [],
+      // through: {
+      //   attributes: [],
         // where: { colorId: { [Op.and]: colorIds } },
-      },
-      where: {
-        [Op.and]: {
-          id: {
-            [Op.in]: colorIds,
-          },
-        },
-      },
+      // },
+      where: { id: {[Op.in]: colorIds}},
+      subQuery: false,
       required: true,
       as: "colors",
     },
-    {
-      model: Size,
-      // through: sizeThrough,
-      required: true,
-      as: "sizes",
-      where: { id: { [Op.and]: sizeIds } },
-    },
-    {
-      model: User,
-      as: "user",
-      attributes: ["id", "firstName", "lastName"],
-    },
-    { model: Category, as: "category", attributes: { exclude: ["parentId"] } },
-    includeDefaultImage,
-    includeImages,
+    // {
+    //   model: Size,
+    //   // through: sizeThrough,
+    //   required: true,
+    //   as: "sizes",
+    //   // where: { id: { [Op.and]: [{[Op.in]: sizeIds}] } },
+    // },
+    // {
+    //   model: User,
+    //   as: "user",
+    //   attributes: ["id", "firstName", "lastName"],
+    // },
+    // { model: Category, as: "category", attributes: { exclude: ["parentId"] } },
+    // includeDefaultImage,
+    // includeImages,
   ];
 };
