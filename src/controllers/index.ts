@@ -4,3 +4,4 @@ export * as SizeController from "./size.controller";
 export * as CategoryController from "./category.controller";
 export * as AddressController from "./address.controller";
 export * as ProductController from "./product.controller";
+export * as CartController from "./cart.controller";

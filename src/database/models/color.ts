@@ -18,6 +18,11 @@ export default (sequelize: any, DataTypes: any) => {
         onDelete: "CASCADE",
         foreignKey: "colorId",
       });
+      Color.hasMany(models.Cart, {
+        foreignKey: "colorId",
+        sourceKey: "id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Color.init(

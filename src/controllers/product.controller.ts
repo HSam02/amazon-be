@@ -305,15 +305,14 @@ export const getAll = async (req: Request, res: Response) => {
     const { brand, name, categoryId, colorIds, sizeIds } = filters;
     const where: any = {};
     if (name) {
-      where.name = { [Op.like]: name };
+      where.name = { [Op.like]: `%${name}%` };
     }
     if (brand) {
-      where.brand = { [Op.like]: brand };
+      where.brand = { [Op.like]: `%${brand}%` };
     }
     if (categoryId) {
       where.categoryId = categoryId;
     }
-    console.log(colorIds);
 
     // if (colorIds) {
     //   where["$colors.id$"] = { [Op.in]: colorIds };
@@ -323,24 +322,25 @@ export const getAll = async (req: Request, res: Response) => {
     // }
 
     const { count, rows } = await Product.findAndCountAll({
-      where: { ...where, "$colors.id$": { [Op.in]: colorIds } },
-      include: filterInclude(
-        colorIds?.map((id) => +id),
-        sizeIds?.map((id) => +id)
-      ),
+      where: {
+        ...where,
+        userId: { [Op.ne]: req.user?.id || 0 },
+        isAvailable: true,
+      },
+      include: includeAll,
       limit: +limit,
       offset: (+page - 1) * +limit,
       distinct: true,
       order: [["id", "DESC"]],
     });
 
-    const newRows = await Product.findAll({
-      where: { id: { [Op.in]: rows.map(({ id }) => id) } },
-      include: { all: true },
-      order: [["id", "DESC"]],
-    });
+    // const newRows = await Product.findAll({
+    //   where: { id: { [Op.in]: rows.map(({ id }) => id) } },
+    //   include: { all: true },
+    //   order: [["id", "DESC"]],
+    // });
 
-    const products = newRows.map((product) => {
+    const products = rows.map((product) => {
       const images = product.images.filter(
         ({ id }: { id: number }) => id !== product.defaultImageId
       );

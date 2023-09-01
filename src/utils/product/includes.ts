@@ -1,4 +1,4 @@
-import { Includeable, Op } from "sequelize";
+import { Includeable, Op, literal } from "sequelize";
 import {
   Category,
   Color,
@@ -37,8 +37,8 @@ export const includeAll: Includeable[] = [
 ];
 
 export const filterInclude = (
-  colorIds?: number[],
-  sizeIds?: number[]
+  colorIds: number[] = [],
+  sizeIds: number[] = []
 ): Includeable[] => {
   const sizeThrough: any = { attributes: [] };
   const colorThrough: any = { attributes: [] };
@@ -53,17 +53,32 @@ export const filterInclude = (
       model: Color,
       through: {
         attributes: [],
+        // where: { colorId: { [Op.and]: colorIds } },
       },
-      where: { id: { [Op.in]: colorIds } },
+      where: {
+        [Op.and]: {
+          id: {
+            [Op.in]: colorIds,
+          },
+        },
+      },
       required: true,
       as: "colors",
     },
     {
       model: Size,
-      through: sizeThrough,
+      // through: sizeThrough,
       required: true,
       as: "sizes",
-      // where: { id: { [Op.in]: sizeIds } },
+      where: { id: { [Op.and]: sizeIds } },
     },
+    {
+      model: User,
+      as: "user",
+      attributes: ["id", "firstName", "lastName"],
+    },
+    { model: Category, as: "category", attributes: { exclude: ["parentId"] } },
+    includeDefaultImage,
+    includeImages,
   ];
 };

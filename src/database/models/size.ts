@@ -18,6 +18,11 @@ export default (sequelize: any, DataTypes: any) => {
         onDelete: "CASCADE",
         foreignKey: "sizeId",
       });
+      Size.hasMany(models.Cart, {
+        foreignKey: "sizeId",
+        sourceKey: "id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Size.init(

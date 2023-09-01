@@ -62,6 +62,10 @@ export default (sequelize: any, DataTypes: any) => {
         foreignKey: "categoryId",
         as: "category",
       });
+      // Product.hasMany(models.Cart, {
+      //   foreignKey: "productId",
+      //   sourceKey: "id",
+      // });
     }
 
     public async addSizes(sizeIds: number[], transaction: Transaction) {
@@ -144,7 +148,11 @@ export default (sequelize: any, DataTypes: any) => {
       name: { allowNull: false, type: DataTypes.STRING },
       description: { allowNull: true, type: DataTypes.STRING },
       brand: { allowNull: false, type: DataTypes.STRING },
-      price: { allowNull: false, type: DataTypes.STRING },
+      price: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        validate: { isNumeric: true },
+      },
       isAvailable: {
         defaultValue: false,
         type: DataTypes.BOOLEAN,
