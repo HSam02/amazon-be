@@ -7,9 +7,9 @@ export interface ICreateCartSchema {
   quantity: number;
 }
 export interface IUpdateCartSchema {
-  sizeId: number;
-  colorId: number;
-  quantity: number;
+  sizeId?: number;
+  colorId?: number;
+  quantity?: number;
 }
 
 export const createCartSchema = Joi.object<ICreateCartSchema>({
