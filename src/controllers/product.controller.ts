@@ -306,7 +306,8 @@ export const getAll = async (req: Request, res: Response) => {
     const query = `
     SELECT p.id
     FROM Products p
-    WHERE LOWER(p.name) LIKE LOWER('%${name || ""}%')
+    WHERE p.userId != ${req.user?.id || 0}
+    ${name ? `AND LOWER(p.name) LIKE LOWER('%${name}%')` : ""}
     ${brand ? `AND LOWER(p.brand) LIKE LOWER('%${brand}%')` : ""}
     ${categoryId ? `AND p.categoryId = ${categoryId}` : ""}
     ${
