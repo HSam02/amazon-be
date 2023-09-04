@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Transaction, Op } from "sequelize";
+import { Transaction, Op, QueryTypes } from "sequelize";
 import fs from "fs";
 import db from "../database/models";
 import { Product, Image } from "../database/models/models";
@@ -9,7 +9,6 @@ import {
 } from "../validations/product.validations";
 import updateSizesOrColors from "../utils/product/updateSizesOrColors";
 import {
-  filterInclude,
   includeAll,
   includeDefaultImage,
   includeImages,
@@ -303,42 +302,52 @@ export const getAll = async (req: Request, res: Response) => {
     >;
 
     const { brand, name, categoryId, colorIds, sizeIds } = filters;
-    const where: any = {};
-    if (name) {
-      where.name = { [Op.like]: `%${name}%` };
-    }
-    if (brand) {
-      where.brand = { [Op.like]: `%${brand}%` };
-    }
-    if (categoryId) {
-      where.categoryId = categoryId;
-    }
 
-    // if (colorIds) {
-    //   where["$colors.id$"] = { [Op.in]: colorIds };
-    // }
-    // if (sizeIds) {
-    //   where["$sizes.id$"] = { [Op.in]: sizeIds };
-    // }
+    const query = `
+    SELECT p.id
+    FROM Products p
+    WHERE LOWER(p.name) LIKE LOWER('%${name || ""}%')
+    ${brand ? `AND LOWER(p.brand) LIKE LOWER('%${brand}%')` : ""}
+    ${categoryId ? `AND p.categoryId = ${categoryId}` : ""}
+    ${
+      colorIds?.length
+        ? `AND p.id IN (
+      SELECT pc.ProductId
+      FROM ProductColors pc
+      WHERE pc.ColorId IN (${colorIds?.join(",")})
+      GROUP BY pc.ProductId
+      HAVING COUNT(DISTINCT pc.ColorId) = ${colorIds?.length}
+    )`
+        : ""
+    }
+    ${
+      sizeIds?.length
+        ? `AND p.id IN (
+      SELECT ps.ProductId
+      FROM ProductSizes ps
+      WHERE ps.SizeId IN (${sizeIds?.join(",")})
+      GROUP BY ps.ProductId
+      HAVING COUNT(DISTINCT ps.SizeId) = ${sizeIds?.length}
+    )`
+        : ""
+    }
+  `;
 
-    const { count, rows } = await Product.findAndCountAll({
-      where: {
-        ...where,
-        userId: { [Op.ne]: req.user?.id || 0 },
-        isAvailable: true,
-      },
-      include: includeAll,
-      limit: +limit,
-      offset: (+page - 1) * +limit,
-      distinct: true,
-      order: [["id", "DESC"]],
+    const productIds: { id: number }[] = await db.sequelize.query(query, {
+      type: QueryTypes.SELECT,
     });
 
-    // const newRows = await Product.findAll({
-    //   where: { id: { [Op.in]: rows.map(({ id }) => id) } },
-    //   include: { all: true },
-    //   order: [["id", "DESC"]],
-    // });
+    const rows = await Product.findAll({
+      where: {
+        id: {
+          [Op.in]: productIds.map(({ id }) => id),
+        },
+      },
+      include: includeAll,
+      order: [["id", "DESC"]],
+      limit: +limit,
+      offset: (+page - 1) * +limit,
+    });
 
     const products = rows.map((product) => {
       const images = product.images.filter(
@@ -350,10 +359,19 @@ export const getAll = async (req: Request, res: Response) => {
       return { ...resData, images };
     });
 
-    res.json({ products, pagination: { count, page: +page, limit: +limit } });
+    res.json({
+      products,
+      pagination: {
+        count: productIds.length,
+        page: +page,
+        limit: +limit,
+      },
+    });
   } catch (error: any) {
-    res.status(415).json({
-      message: error.message,
+    console.log("Error getAll", error);
+
+    res.status(500).json({
+      message: "Internal server error",
     });
   }
 };
