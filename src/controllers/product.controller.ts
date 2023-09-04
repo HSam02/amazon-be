@@ -9,14 +9,11 @@ import {
 } from "../validations/product.validations";
 import updateSizesOrColors from "../utils/product/updateSizesOrColors";
 import {
-  filterInclude,
   includeAll,
   includeDefaultImage,
   includeImages,
   includeSizesColors,
 } from "../utils/product/includes";
-import { Sequelize } from "sequelize-typescript";
-import { log } from "console";
 
 export const create = async (req: Request, res: Response) => {
   const transaction: Transaction = await db.sequelize.transaction();
@@ -305,72 +302,54 @@ export const getAll = async (req: Request, res: Response) => {
     >;
 
     const { brand, name, categoryId, colorIds, sizeIds } = filters;
-    const where: any = {};
-    if (name) {
-      where.name = { [Op.like]: `%${name}%` };
-    }
-    if (brand) {
-      where.brand = { [Op.like]: `%${brand}%` };
-    }
-    if (categoryId) {
-      where.categoryId = categoryId;
-    }
 
-    // if (colorIds) {
-    //   where["$colors.id$"] = { [Op.in]: colorIds };
-    // }
-    // if (sizeIds) {
-    //   where["$sizes.id$"] = { [Op.in]: sizeIds };
-    // }
-
-    const { count, rows } = await Product.findAndCountAll({
-      where: {
-        ...where,
-        // userId: { [Op.ne]: req.user?.id || 0 },
-        // isAvailable: true,
-      },
-      include: filterInclude(colorIds || [], sizeIds || []),
-      // group: ['Product.id'],
-      // having: db.sequelize.literal('COUNT(amazonDB.ProductColors.colorId) = 2'),
-      // group: ["Product.id"], // Group by product to ensure they have both colors
-      // having: Sequelize.literal(`COUNT(Colors.id) = ${colorIds?.length}`),
-      // limit: +limit,
-      // offset: (+page - 1) * +limit,
-      // distinct: true,
-      // order: [["id", "DESC"]],
-    });
-    const productsWithColors = await db.sequelize.query(`
-    SELECT DISTINCT p.*, c_blue.value as bName, c_green.value as gname
+    const query = `
+    SELECT p.id
     FROM Products p
-    INNER JOIN ProductColors pc_blue ON p.id = pc_blue.ProductId
-    INNER JOIN Colors c_blue ON pc_blue.ColorId = c_blue.id AND c_blue.id = 6
-    INNER JOIN ProductColors pc_green ON p.id = pc_green.ProductId
-    INNER JOIN Colors c_green ON pc_green.ColorId = c_green.id AND c_green.id = 9
-  `, {
-    model: Product,
-    mapToModel: true,
-    type: QueryTypes.SELECT
-  });
-  const productCount = await db.sequelize.query(`
-  SELECT DISTINCT COUNT(p.id) as count
-  FROM Products p
-  INNER JOIN ProductColors pc_blue ON p.id = pc_blue.ProductId
-  INNER JOIN Colors c_blue ON pc_blue.ColorId = c_blue.id AND c_blue.id = 6
-  INNER JOIN ProductColors pc_green ON p.id = pc_green.ProductId
-  INNER JOIN Colors c_green ON pc_green.ColorId = c_green.id AND c_green.id = 9
-`, {
-  model: Product,
-  mapToModel: true,
-  type: QueryTypes.SELECT
-});
-console.log('productsWithColors', productsWithColors, productCount[0].count)
-    const newRows = await Product.findAll({
-      where: { id: { [Op.in]: rows.map(({ id }) => id) } },
-      include: { all: true },
-      order: [["id", "DESC"]],
+    WHERE LOWER(p.name) LIKE LOWER('%${name || ""}%')
+    ${brand ? `AND LOWER(p.brand) LIKE LOWER('%${brand}%')` : ""}
+    ${categoryId ? `AND p.categoryId = ${categoryId}` : ""}
+    ${
+      colorIds?.length
+        ? `AND p.id IN (
+      SELECT pc.ProductId
+      FROM ProductColors pc
+      WHERE pc.ColorId IN (${colorIds?.join(",")})
+      GROUP BY pc.ProductId
+      HAVING COUNT(DISTINCT pc.ColorId) = ${colorIds?.length}
+    )`
+        : ""
+    }
+    ${
+      sizeIds?.length
+        ? `AND p.id IN (
+      SELECT ps.ProductId
+      FROM ProductSizes ps
+      WHERE ps.SizeId IN (${sizeIds?.join(",")})
+      GROUP BY ps.ProductId
+      HAVING COUNT(DISTINCT ps.SizeId) = ${sizeIds?.length}
+    )`
+        : ""
+    }
+  `;
+
+    const productIds: { id: number }[] = await db.sequelize.query(query, {
+      type: QueryTypes.SELECT,
     });
 
-    const products = newRows.map((product) => {
+    const rows = await Product.findAll({
+      where: {
+        id: {
+          [Op.in]: productIds.map(({ id }) => id),
+        },
+      },
+      include: includeAll,
+      order: [["id", "DESC"]],
+      limit: +limit,
+      offset: (+page - 1) * +limit,
+    });
+
+    const products = rows.map((product) => {
       const images = product.images.filter(
         ({ id }: { id: number }) => id !== product.defaultImageId
       );
@@ -380,7 +359,14 @@ console.log('productsWithColors', productsWithColors, productCount[0].count)
       return { ...resData, images };
     });
 
-    res.json({ products: productsWithColors, pagination: { count: productCount[0].count, page: +page, limit: +limit } });
+    res.json({
+      products,
+      pagination: {
+        count: productIds.length,
+        page: +page,
+        limit: +limit,
+      },
+    });
   } catch (error: any) {
     console.log("Error getAll", error);
 
