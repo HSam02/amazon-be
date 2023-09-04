@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import db from "./";
 import userModelFunction from "./user";
 import sizeModelFunction from "./size";
@@ -20,7 +21,22 @@ export const Cart: ReturnType<typeof cartModelFunction> = db.Cart;
 Address.addHook("beforeDestroy", async (instance: any) => {
   const user = await db.User.findByPk(instance.userId);
   if (user?.defaultAddressId === instance.id) {
-    user.defaultAddressId = null;
+    const address = await Address.findOne({
+      where: { id: { [Op.ne]: instance.id }, userId: user.id },
+    });
+    if (address) {
+      user.defaultAddressId = address.id;
+    } else {
+      user.defaultAddressId = null;
+    }
+    await user.save();
+  }
+});
+
+Address.addHook("afterCreate", async (instance: any) => {
+  const user = await db.User.findByPk(instance.userId);
+  if (!user.defaultAddressId) {
+    user.defaultAddressId = instance.id;
     await user.save();
   }
 });

@@ -8,10 +8,29 @@ import { includeAll } from "../utils/product/includes";
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const cartItem = await Cart.create({
-      ...(req.body as ICreateCartSchema),
-      userId: req.user!.id,
-    });
+    const cartItem = await Cart.create(
+      {
+        ...(req.body as ICreateCartSchema),
+        userId: req.user!.id,
+      },
+      {
+        include: [
+          {
+            model: Product,
+            as: "product",
+            include: includeAll,
+          },
+          {
+            model: Size,
+            as: "size",
+          },
+          {
+            model: Color,
+            as: "color",
+          },
+        ],
+      }
+    );
     res.json(cartItem);
   } catch (error: any) {
     res.status(415).json({
