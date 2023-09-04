@@ -8,6 +8,14 @@ import { includeAll } from "../utils/product/includes";
 
 export const create = async (req: Request, res: Response) => {
   try {
+    const { quantity, ...otherData } = req.body as ICreateCartSchema;
+    const item = await Cart.findOne({ where: otherData });
+    if (item) {
+      return res.status(409).json({
+        message: "Item already exists in the Cart",
+      });
+    }
+
     const cartItem = await Cart.create(
       {
         ...(req.body as ICreateCartSchema),
