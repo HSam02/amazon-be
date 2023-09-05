@@ -7,35 +7,41 @@ export const create = async (req: Request, res: Response) => {
   try {
     const data = req.body as ICreateBuyLaterSchema;
     const item = await BuyLater.findOne({ where: { ...data } });
+    const product = await Product.findByPk(data.productId);
+
     if (item) {
       return res.status(409).json({
         message: "Item already exists",
       });
     }
 
-    const buyLaterItem = await BuyLater.create(
-      {
-        ...data,
-        userId: req.user!.id,
-      },
-      {
-        include: [
-          {
-            model: Product,
-            as: "product",
-            include: includeAll,
-          },
-          {
-            model: Size,
-            as: "size",
-          },
-          {
-            model: Color,
-            as: "color",
-          },
-        ],
-      }
-    );
+    if (product?.userId === req.user?.id) {
+      return res.status(409).json({
+        message: "User can't buy own product",
+      });
+    }
+
+    const buyLaterItem = await BuyLater.create({
+      ...data,
+      userId: req.user!.id,
+    });
+    await buyLaterItem.reload({
+      include: [
+        {
+          model: Product,
+          as: "product",
+          include: includeAll,
+        },
+        {
+          model: Size,
+          as: "size",
+        },
+        {
+          model: Color,
+          as: "color",
+        },
+      ],
+    });
     res.json(buyLaterItem);
   } catch (error) {
     console.log("BuyLater create Error: ", error);
@@ -95,9 +101,10 @@ export const getMy = async (req: Request, res: Response) => {
       ],
     });
     res.json(buyLaterItems);
-  } catch (error: any) {
-    res.status(415).json({
-      message: error.message,
+  } catch (error) {
+    console.log("BuyLater remove Error: ", error);
+    res.status(500).json({
+      message: "Internal server error",
     });
   }
 };

@@ -62,16 +62,16 @@ export default (sequelize: any, DataTypes: any) => {
         foreignKey: "categoryId",
         as: "category",
       });
-      // Product.hasMany(models.Cart, {
-      //   foreignKey: "productId",
-      //   sourceKey: "id",
-      //   onDelete: "CASCADE",
-      // });
-      // Product.hasMany(models.BuyLater, {
-      //   foreignKey: "productId",
-      //   sourceKey: "id",
-      //   onDelete: "CASCADE",
-      // });
+      Product.hasMany(models.Cart, {
+        foreignKey: "productId",
+        sourceKey: "id",
+        onDelete: "CASCADE",
+      });
+      Product.hasMany(models.BuyLater, {
+        foreignKey: "productId",
+        sourceKey: "id",
+        onDelete: "CASCADE",
+      });
     }
 
     public async addSizes(sizeIds: number[], transaction: Transaction) {
