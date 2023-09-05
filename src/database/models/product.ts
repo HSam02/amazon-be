@@ -10,6 +10,7 @@ interface IProductAttributes {
   categoryId: number | null;
   defaultImageId: number | null;
   isAvailable?: boolean;
+  deletedAt: Date | null;
 }
 
 export default (sequelize: any, DataTypes: any) => {
@@ -30,6 +31,8 @@ export default (sequelize: any, DataTypes: any) => {
 
     createdAt!: Date;
     updatedAt!: Date;
+    deletedAt!: Date | null;
+
     static associate(models: any) {
       Product.belongsToMany(models.Size, {
         through: "ProductSizes",
@@ -186,6 +189,10 @@ export default (sequelize: any, DataTypes: any) => {
           key: "id",
           model: "Images",
         },
+      },
+      deletedAt: {
+        allowNull: true,
+        type: DataTypes.DATE,
       },
     },
     {

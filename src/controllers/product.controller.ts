@@ -242,12 +242,15 @@ export const remove = async (req: Request, res: Response) => {
       });
     }
 
-    await product.destroy();
+    product.deletedAt = new Date();
+    await product.save();
 
-    product.images.forEach(
-      ({ url }: { url: string }) =>
-        fs.existsSync(`./src${url}`) && fs.unlinkSync(`./src${url}`)
-    );
+    // await product.destroy();
+
+    // product.images.forEach(
+    //   ({ url }: { url: string }) =>
+    //     fs.existsSync(`./src${url}`) && fs.unlinkSync(`./src${url}`)
+    // );
 
     res.json({ success: true });
   } catch (error: any) {
@@ -262,7 +265,7 @@ export const getUserProducts = async (req: Request, res: Response) => {
   try {
     const { limit = 10, page = 1 } = req.query;
     const { rows, count } = await Product.findAndCountAll({
-      where: { userId: req.user?.id },
+      where: { userId: req.user?.id, deletedAt: null },
       include: includeAll,
       limit: +limit,
       offset: (+page - 1) * +limit,
@@ -307,6 +310,7 @@ export const getAll = async (req: Request, res: Response) => {
     SELECT p.id
     FROM Products p
     WHERE p.userId != ${req.user?.id || 0}
+    AND ISNULL(p.deletedAt)
     ${name ? `AND LOWER(p.name) LIKE LOWER('%${name}%')` : ""}
     ${brand ? `AND LOWER(p.brand) LIKE LOWER('%${brand}%')` : ""}
     ${categoryId ? `AND p.categoryId = ${categoryId}` : ""}
