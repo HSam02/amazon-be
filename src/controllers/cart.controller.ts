@@ -9,7 +9,9 @@ import { includeAll } from "../utils/product/includes";
 export const create = async (req: Request, res: Response) => {
   try {
     const { quantity, ...otherData } = req.body as ICreateCartSchema;
-    const item = await Cart.findOne({ where: otherData });
+    const item = await Cart.findOne({
+      where: { ...otherData, userId: req.user?.id },
+    });
     const product = await Product.findByPk(otherData.productId);
 
     if (item) {

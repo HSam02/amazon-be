@@ -6,7 +6,9 @@ import { includeAll } from "../utils/product/includes";
 export const create = async (req: Request, res: Response) => {
   try {
     const data = req.body as ICreateBuyLaterSchema;
-    const item = await BuyLater.findOne({ where: { ...data } });
+    const item = await BuyLater.findOne({
+      where: { ...data, userId: req.user?.id },
+    });
     const product = await Product.findByPk(data.productId);
 
     if (item) {
