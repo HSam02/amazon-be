@@ -65,6 +65,12 @@ export default (sequelize: any, DataTypes: any) => {
       // Product.hasMany(models.Cart, {
       //   foreignKey: "productId",
       //   sourceKey: "id",
+      //   onDelete: "CASCADE",
+      // });
+      // Product.hasMany(models.BuyLater, {
+      //   foreignKey: "productId",
+      //   sourceKey: "id",
+      //   onDelete: "CASCADE",
       // });
     }
 

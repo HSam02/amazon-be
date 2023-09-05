@@ -10,9 +10,17 @@ export const create = async (req: Request, res: Response) => {
   try {
     const { quantity, ...otherData } = req.body as ICreateCartSchema;
     const item = await Cart.findOne({ where: otherData });
+    const product = await Product.findByPk(otherData.productId);
+
     if (item) {
       return res.status(409).json({
         message: "Item already exists in the Cart",
+      });
+    }
+
+    if (product?.userId === req.user?.id) {
+      return res.status(409).json({
+        message: "User can't buy own product",
       });
     }
 

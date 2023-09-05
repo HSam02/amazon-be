@@ -23,18 +23,22 @@ export default (sequelize: any, DataTypes: any) => {
       BuyLater.belongsTo(models.User, {
         foreignKey: "userId",
         as: "user",
+        onDelete: "CASCADE",
       });
       BuyLater.belongsTo(models.Color, {
         foreignKey: "colorId",
         as: "color",
+        onDelete: "CASCADE",
       });
       BuyLater.belongsTo(models.Size, {
         foreignKey: "sizeId",
         as: "size",
+        onDelete: "CASCADE",
       });
       BuyLater.belongsTo(models.Product, {
         foreignKey: "productId",
         as: "product",
+        onDelete: "CASCADE",
       });
     }
   }
