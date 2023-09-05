@@ -34,6 +34,12 @@ export default (sequelize: any, DataTypes: any) => {
     deletedAt!: Date | null;
 
     static associate(models: any) {
+      Product.belongsToMany(models.Order, {
+        through: "OrdersProducts",
+        timestamps: false,
+        onDelete: "CASCADE",
+        foreignKey: "productId",
+      });
       Product.belongsToMany(models.Size, {
         through: "ProductSizes",
         timestamps: false,
@@ -160,7 +166,7 @@ export default (sequelize: any, DataTypes: any) => {
       price: {
         allowNull: false,
         type: DataTypes.STRING,
-        validate: { isNumeric: true },
+        validate: { isInt: true },
       },
       isAvailable: {
         defaultValue: false,

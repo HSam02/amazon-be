@@ -9,6 +9,8 @@ import productModelFunction from "./product";
 import imageModelFunction from "./image";
 import cartModelFunction from "./cart";
 import buyLaterModelFunction from "./buylater";
+import orderModelFunction from "./order";
+import ordersProductsModelFunction from "./ordersproducts";
 
 export const User: ReturnType<typeof userModelFunction> = db.User;
 export const Color: ReturnType<typeof colorModelFunction> = db.Color;
@@ -19,6 +21,9 @@ export const Product: ReturnType<typeof productModelFunction> = db.Product;
 export const Image: ReturnType<typeof imageModelFunction> = db.Image;
 export const Cart: ReturnType<typeof cartModelFunction> = db.Cart;
 export const BuyLater: ReturnType<typeof buyLaterModelFunction> = db.BuyLater;
+export const Order: ReturnType<typeof orderModelFunction> = db.Order;
+export const OrdersProducts: ReturnType<typeof ordersProductsModelFunction> =
+  db.OrdersProducts;
 
 Address.addHook("beforeDestroy", async (instance: any) => {
   const user = await db.User.findByPk(instance.userId);

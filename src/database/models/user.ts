@@ -1,5 +1,4 @@
 import { Model } from "sequelize";
-import * as models from "./models";
 
 interface IUserAttributes {
   firstName: string;
