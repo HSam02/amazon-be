@@ -47,6 +47,11 @@ export default (sequelize: any, DataTypes: any) => {
         sourceKey: "id",
         onDelete: "CASCADE",
       });
+      User.hasMany(models.BuyLater, {
+        foreignKey: "userId",
+        sourceKey: "id",
+        onDelete: "CASCADE",
+      });
     }
   }
   User.init(

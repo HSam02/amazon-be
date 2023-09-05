@@ -5,3 +5,4 @@ export * as CategoryController from "./category.controller";
 export * as AddressController from "./address.controller";
 export * as ProductController from "./product.controller";
 export * as CartController from "./cart.controller";
+export * as BuyLaterController from "./buyLater.controller";
