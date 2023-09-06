@@ -6,7 +6,7 @@ import {
   ILoginShcema,
   IRegisterShcema,
 } from "../validations/user.validation";
-import { IMessage, sendMail } from "../utils/sendMail";
+import { IMessage, sendMail } from "../services/sendMail";
 import { getSixDigitCode } from "../utils/getSixDigitCode";
 import { Role } from "../middlewares/setUser";
 import { Address, User } from "../database/models/models";
