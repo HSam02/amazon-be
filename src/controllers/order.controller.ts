@@ -34,7 +34,7 @@ export const create = async (req: Request, res: Response) => {
     });
 
     await transaction.commit();
-    res.json({ ...getOrdersData(order)[0] });
+    res.json({ ...getOrdersData([order])[0] });
   } catch (error) {
     await transaction.rollback();
     console.log("Order create Error: ", error);
