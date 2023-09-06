@@ -4,7 +4,6 @@ import { Model } from "sequelize";
 interface IOrdersProductsAttributes {
   orderId: number;
   productId: number;
-  address: string;
   quantity: number;
   price: string;
   color: string;
@@ -22,7 +21,6 @@ export default (sequelize: any, DataTypes: any) => {
     id!: number;
     orderId!: number;
     productId!: number;
-    address!: string;
     quantity!: number;
     price!: string;
     color!: string;
@@ -56,10 +54,6 @@ export default (sequelize: any, DataTypes: any) => {
           model: "Products",
         },
       },
-      address: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
       quantity: {
         allowNull: false,
         type: DataTypes.INTEGER,
@@ -75,6 +69,7 @@ export default (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: "OrdersProducts",
+      timestamps: false,
     }
   );
   return OrdersProducts;

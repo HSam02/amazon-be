@@ -6,4 +6,4 @@ export * as AddressController from "./address.controller";
 export * as ProductController from "./product.controller";
 export * as CartController from "./cart.controller";
 export * as BuyLaterController from "./buyLater.controller";
-export * as OrdersController from "./orders.controller";
+export * as OrderController from "./order.controller";

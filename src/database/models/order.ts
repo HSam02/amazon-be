@@ -3,6 +3,7 @@ import { Model } from "sequelize";
 
 interface IOrderAttributes {
   userId: number;
+  address: string;
 }
 
 export default (sequelize: any, DataTypes: any) => {
@@ -12,6 +13,8 @@ export default (sequelize: any, DataTypes: any) => {
   {
     id!: number;
     userId!: number;
+    address!: string;
+    
     static associate(models: any) {
       Order.belongsToMany(models.Product, {
         through: "OrdersProducts",
@@ -41,6 +44,10 @@ export default (sequelize: any, DataTypes: any) => {
           key: "id",
           model: "Users",
         },
+      },
+      address: {
+        allowNull: false,
+        type: DataTypes.STRING,
       },
     },
     {

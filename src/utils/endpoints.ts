@@ -56,3 +56,8 @@ export enum buyLaterEndpoints {
   CREATE = "/buylater",
   REMOVE = "/buylater/:id",
 }
+
+export enum orderEndpoints {
+  GET_MY = "/order",
+  CREATE = "/order",
+}
