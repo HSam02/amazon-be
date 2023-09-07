@@ -20,6 +20,8 @@ export default (sequelize: any, DataTypes: any) => {
     colorId!: number;
     quantity!: number;
     productId!: number;
+
+    [key: string]: any;
     static associate(models: any) {
       Cart.belongsTo(models.User, {
         foreignKey: "userId",

@@ -7,3 +7,4 @@ export * as ProductController from "./product.controller";
 export * as CartController from "./cart.controller";
 export * as BuyLaterController from "./buyLater.controller";
 export * as OrderController from "./order.controller";
+export * as PaymentController from "./payment.controller";
