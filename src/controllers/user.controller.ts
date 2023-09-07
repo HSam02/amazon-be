@@ -40,7 +40,15 @@ export const register = async (req: Request, res: Response) => {
       { expiresIn: "30d" }
     );
 
-    res.json({ user: { ...newUser, id: user.id, role: Role.User }, token });
+    res.json({
+      user: {
+        ...newUser,
+        id: user.id,
+        role: Role.User,
+        defaultAddressId: null,
+      },
+      token,
+    });
   } catch (error: any) {
     res.status(415).json({
       message: error.message,

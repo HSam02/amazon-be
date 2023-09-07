@@ -49,7 +49,7 @@ export const create = async (req: Request, res: Response) => {
       currency: "usd",
       description: "Payment",
       metadata: {
-        token: token,
+        token,
       },
     });
 
