@@ -34,6 +34,11 @@ export default (sequelize: any, DataTypes: any) => {
     deletedAt!: Date | null;
 
     static associate(models: any) {
+      Product.hasMany(models.OrdersProducts, {
+        foreignKey: "productId",
+        sourceKey: "id",
+        as: "product",
+      });
       Product.belongsToMany(models.Order, {
         through: "OrdersProducts",
         timestamps: false,

@@ -27,7 +27,10 @@ export default (sequelize: any, DataTypes: any) => {
     size!: string;
 
     static associate(models: any) {
-      // define association here
+      OrdersProducts.belongsTo(models.Product, {
+        foreignKey: "productId",
+        as: "product",
+      });
     }
   }
   OrdersProducts.init(

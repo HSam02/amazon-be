@@ -2,7 +2,12 @@ import { Request, Response } from "express";
 import { Transaction, Op, QueryTypes } from "sequelize";
 import fs from "fs";
 import db from "../database/models";
-import { Product, Image } from "../database/models/models";
+import {
+  Product,
+  Image,
+  Order,
+  OrdersProducts,
+} from "../database/models/models";
 import {
   IProductCreateSchema,
   IProductUpdateSchema,
@@ -283,7 +288,36 @@ export const getUserProducts = async (req: Request, res: Response) => {
       return { ...resData, images };
     });
 
-    res.json({ products, pagination: { count, page: +page, limit: +limit } });
+    const ordersProducts = await OrdersProducts.findAll({
+      where: { productId: products.map(({ id }) => id) },
+      include: {
+        model: Product,
+        include: includeAll,
+        as: "product",
+      },
+    });
+
+    const productsWithStatistic = products.map((product) => ({
+      ...product,
+      statistic: ordersProducts.reduce(
+        (acc, { productId, price, quantity }) =>
+          productId === product.id
+            ? {
+                totalCount: acc.totalCount + quantity,
+                totalPrice: acc.totalPrice + quantity * +price,
+              }
+            : acc,
+        {
+          totalCount: 0,
+          totalPrice: 0,
+        }
+      ),
+    }));
+
+    res.json({
+      products: productsWithStatistic,
+      pagination: { count, page: +page, limit: +limit },
+    });
   } catch (error: any) {
     res.status(415).json({
       message: error.message,
@@ -311,7 +345,8 @@ export const getAll = async (req: Request, res: Response) => {
     FROM Products p
     WHERE p.userId != ${req.user?.id || 0}
     AND ISNULL(p.deletedAt)
-    ${name ? `AND LOWER(p.name) LIKE LOWER('%${name}%')` : ""}
+    AND p.isAvailable = 1
+    ${name ? ` AND LOWER(p.name) LIKE LOWER('%${name}%')` : ""}
     ${brand ? `AND LOWER(p.brand) LIKE LOWER('%${brand}%')` : ""}
     ${categoryId ? `AND p.categoryId = ${categoryId}` : ""}
     ${
